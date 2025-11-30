@@ -883,5 +883,333 @@ public class User
 
          return path;
      }
+
+     public double GetCurrentRatio()
+     {
+         try
+         {
+             var assetsSql = "SELECT SUM(Balance) FROM Account WHERE Account.SubCategory = 'Current Asset'";
+             var liabilitiesSql = "SELECT SUM(Balance) FROM Account WHERE Account.SubCategory = 'Current Liability'";
+             
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             double assets = 0;
+
+             using var assetsCommand = new SqliteCommand(assetsSql, connection);
+             using var assetsReader = assetsCommand.ExecuteReader();
+             if (assetsReader.HasRows)
+             {
+                 assets = assetsReader.GetDouble(0);
+             }
+
+             double liabilities = 0;
+
+             using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
+             using var liaReader = liaCommand.ExecuteReader();
+             if (liaReader.HasRows)
+             {
+                 liabilities = liaReader.GetDouble(0);
+             }
+             
+             connection.Close();
+             
+             //ratios should be percentages
+             return (assets / liabilities) * 100;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
      
+     public double GetWorkingCapital()
+     {
+         try
+         {
+             var assetsSql = "SELECT SUM(Balance) FROM Account WHERE Account.SubCategory = 'Current Asset'";
+             var liabilitiesSql = "SELECT SUM(Balance) FROM Account WHERE Account.SubCategory = 'Current Liability'";
+             
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             double assets = 0;
+
+             using var assetsCommand = new SqliteCommand(assetsSql, connection);
+             using var assetsReader = assetsCommand.ExecuteReader();
+             if (assetsReader.HasRows)
+             {
+                 assets = assetsReader.GetDouble(0);
+             }
+
+             double liabilities = 0;
+
+             using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
+             using var liaReader = liaCommand.ExecuteReader();
+             if (liaReader.HasRows)
+             {
+                 liabilities = liaReader.GetDouble(0);
+             }
+             
+             connection.Close();
+
+             return (assets - liabilities);
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+     
+     public double GetDebtRatio()
+     {
+         try
+         {
+             var assetsSql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Asset'";
+             var liabilitiesSql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Liability'";
+             
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             double assets = 0;
+
+             using var assetsCommand = new SqliteCommand(assetsSql, connection);
+             using var assetsReader = assetsCommand.ExecuteReader();
+             if (assetsReader.HasRows)
+             {
+                 assets = assetsReader.GetDouble(0);
+             }
+
+             double liabilities = 0;
+
+             using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
+             using var liaReader = liaCommand.ExecuteReader();
+             if (liaReader.HasRows)
+             {
+                 liabilities = liaReader.GetDouble(0);
+             }
+             
+             connection.Close();
+
+             //ratios should be percentages
+             return (liabilities/assets) * 100;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+     
+     public double GetDtE()
+     {
+         try
+         {
+             var equitySql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Equity'";
+             var liabilitiesSql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Liability'";
+             
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             double equity = 0;
+
+             using var equityCommand = new SqliteCommand(equitySql, connection);
+             using var equityReader = equityCommand.ExecuteReader();
+             if (equityReader.HasRows)
+             {
+                 equity = equityReader.GetDouble(0);
+             }
+
+             double liabilities = 0;
+
+             using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
+             using var liaReader = liaCommand.ExecuteReader();
+             if (liaReader.HasRows)
+             {
+                 liabilities = liaReader.GetDouble(0);
+             }
+             
+             connection.Close();
+
+             //ratios should be percentages
+             return (liabilities/equity) * 100;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+
+     public static double GetNetIncome()
+     {
+         try
+         {
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+             
+             var revenueSql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Revenue'";
+             var expenseSql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Expense'";
+
+             double revenue = 0;
+
+             using var revCommand = new SqliteCommand(revenueSql, connection);
+             using var revReader = revCommand.ExecuteReader();
+             if (revReader.HasRows)
+             {
+                 revenue = revReader.GetDouble(0);
+             }
+
+             double expense = 0;
+             
+             using var expCommand = new SqliteCommand(expenseSql, connection);
+             using var expReader = revCommand.ExecuteReader();
+             if (expReader.HasRows)
+             {
+                 expense = expReader.GetDouble(0);
+             }
+
+             return revenue - expense;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+
+     public static double GetNetProfitMargin()
+     {
+         try
+         {
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+             
+             double netIncome = GetNetIncome();
+
+             var salesSql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Revenue'";
+             double sales = 0;
+
+             using var salesCommand = new SqliteCommand(salesSql, connection);
+             using var salesReader = salesCommand.ExecuteReader();
+             if (salesReader.HasRows)
+             {
+                 sales = salesReader.GetDouble(0);
+             }
+
+             return (netIncome / sales) * 100;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+
+     public static double GetQuickRatio()
+     {
+         try
+         {
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             var assetSql = "SELECT SUM(Balance) FROM Account WHERE SubCategory = 'Current Asset'";
+             var cashSql = "SELECT Balance FROM Account WHERE Name = 'Cash'";
+             var liaSql = "SELECT SUM(Balance) FROM Account WHERE SubCategory = 'Current Liability'";
+             
+             double assets = 0;
+
+             using var assetCommand = new SqliteCommand(assetSql, connection);
+             using var assetReader = assetCommand.ExecuteReader();
+             if (assetReader.HasRows)
+             {
+                 assets = assetReader.GetDouble(0);
+             }
+             
+             double cash = 0;
+
+             using var cashCommand = new SqliteCommand(cashSql, connection);
+             using var cashReader = assetCommand.ExecuteReader();
+             if (cashReader.HasRows)
+             {
+                 assets = cashReader.GetDouble(0);
+             }
+             
+             double liabilities = 0;
+
+             using var liaCommand = new SqliteCommand(liaSql, connection);
+             using var liaReader = liaCommand.ExecuteReader();
+             if (liaReader.HasRows)
+             {
+                 liabilities = cashReader.GetDouble(0);
+             }
+
+             return ((assets + cash) / liabilities) * 100;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+
+     public static double GetRoA()
+     {
+         try
+         {
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             var assetSql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Asset'";
+
+             double avgAsset = 0;
+
+             using var assetCommand = new SqliteCommand(assetSql, connection);
+             using var assetReader = assetCommand.ExecuteReader();
+             if (assetReader.HasRows)
+             {
+                 avgAsset = assetReader.GetDouble(0);
+             }
+
+             double netIncome = GetNetIncome();
+
+             return netIncome/avgAsset;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
+
+     public static double GetRoE()
+     {
+         try
+         {
+             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+             connection.Open();
+
+             var equitySql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Equity'";
+
+             double avgEquity = 0;
+
+             using var equityCommand = new SqliteCommand(equitySql, connection);
+             using var assetReader = equityCommand.ExecuteReader();
+             if (assetReader.HasRows)
+             {
+                 avgEquity = assetReader.GetDouble(0);
+             }
+
+             double netIncome = GetNetIncome();
+
+             return netIncome/avgEquity;
+         }
+         catch (Exception e)
+         {
+             Console.WriteLine(e);
+             throw;
+         }
+     }
 }

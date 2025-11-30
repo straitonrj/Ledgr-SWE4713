@@ -472,6 +472,181 @@ public class Manager : User
         return result;
     }
     
+    public static List<string> FilterJournalByTwoFilters(string searchByOne, string searchByTwo, string oneAscDesc, string twoAscDesc)
+    {
+        List<string> result = new List<string>();
+        var sql = "";
+        string searchBy = searchByOne + "-" + oneAscDesc + "-" + searchByTwo + "-" + twoAscDesc;
+        
+        //name date
+        if (searchBy.Equals("Name-ASC-Date-ASC") || searchBy.Equals("Date-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date ASC";
+        }
+        else if (searchBy.Equals("Name-DESC-Date-DESC") || searchBy.Equals("Date-DES-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date DESC";
+        }
+        else if (searchBy.Equals("Name-ASC-Date-DESC") || searchBy.Equals("Date-DES-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date DESC";
+        }
+        else if (searchBy.Equals("Name-DESC-Date-ASC") || searchBy.Equals("Date-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date ASC";
+        }
+        //name amount
+        else if (searchBy.Equals("Name-ASC-Amount-ASC") || searchBy.Equals("Amount-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t2.Amount ASC";
+        }
+        else if (searchBy.Equals("Name-DESC-Amount-DESC") || searchBy.Equals("Amount-DESC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Name-ASC-Amount-DESC") || searchBy.Equals("Amount-DESC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Name-DESC-Amount-ASC") || searchBy.Equals("Amount-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t2.Amount ASC";
+        }
+        //Date amount
+        else if (searchBy.Equals("Date-ASC-Amount-ASC") || searchBy.Equals("Amount-ASC-Date-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date ASC, t2.Amount ASC";
+        }
+        else if (searchBy.Equals("Date-DESC-Amount-DESC") || searchBy.Equals("Amount-DESC-Date-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date DESC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Date-ASC-Amount-DESC") || searchBy.Equals("Amount-DESC-Date-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date ASC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Date-DESC-Amount-ASC") || searchBy.Equals("Amount-ASC-Date-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date DESC, t2.Amount ASC";
+        }
+        
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var command = new SqliteCommand(sql, connection);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            result.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            result.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return result;
+    }
+
+    public static List<string> FilterJournalByThreeFilters(string searchByOne, string searchByTwo, string searchByThree,
+        string oneAscDesc, string twoAscDesc, string threeAscDesc)
+    {
+        List<string> result = new List<string>();
+        var sql = "";
+        string searchBy = searchByOne + "-" + oneAscDesc + "-" + searchByTwo + "-" + twoAscDesc + "-" + searchByThree +
+                          "-" + threeAscDesc;
+        //all asc
+        if (searchBy.Equals("Name-ASC-Date-ASC-Amount-ASC") || searchBy.Equals("Name-ASC-Amount-ASC-Date-ASC") || searchBy.Equals("Date-ASC-Name-ASC-Amount-ASC") || searchBy.Equals("Date-ASC-Amount-ASC-Name-ASC") || searchBy.Equals("Amount-ASC-Name-ASC-Date-ASC") || searchBy.Equals("Amount-ASC-Date-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date ASC, t2.Amount ASC";
+        }
+        //name desc
+        else if (searchBy.Equals("Name-Desc-Date-ASC-Amount-ASC") || searchBy.Equals("Name-DESC-Amount-ASC-Date-ASC") || searchBy.Equals("Date-ASC-Name-DESC-Amount-ASC") || searchBy.Equals("Date-ASC-Amount-ASC-Name-DESC") || searchBy.Equals("Amount-ASC-Name-DESC-Date-ASC") || searchBy.Equals("Amount-ASC-Date-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date ASC, t2.Amount ASC";
+        }
+        //date desc
+        else if (searchBy.Equals("Name-ASC-Date-DESC-Amount-ASC") || searchBy.Equals("Name-ASC-Amount-ASC-Date-DESC") || searchBy.Equals("Date-DESC-Name-ASC-Amount-ASC") || searchBy.Equals("Date-DESC-Amount-ASC-Name-ASC") || searchBy.Equals("Amount-ASC-Name-ASC-Date-DESC") || searchBy.Equals("Amount-ASC-Date-DESC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date DESC, t2.Amount ASC";
+        }
+        //amount desc
+        else if (searchBy.Equals("Name-ASC-Date-ASC-Amount-DESC") || searchBy.Equals("Name-ASC-Amount-DESC-Date-ASC") || searchBy.Equals("Date-ASC-Name-ASC-Amount-DESC") || searchBy.Equals("Date-ASC-Amount-DESC-Name-ASC") || searchBy.Equals("Amount-DESC-Name-ASC-Date-ASC") || searchBy.Equals("Amount-DESC-Date-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date ASC, t2.Amount DESC";
+        }
+        //name and date desc
+        else if (searchBy.Equals("Name-Desc-Date-DESC-Amount-ASC") || searchBy.Equals("Name-DESC-Amount-ASC-Date-DESC") || searchBy.Equals("Date-DESC-Name-DESC-Amount-ASC") || searchBy.Equals("Date-DESC-Amount-ASC-Name-DESC") || searchBy.Equals("Amount-ASC-Name-DESC-Date-DESC") || searchBy.Equals("Amount-ASC-Date-DESC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date DESC, t2.Amount ASC";
+        }
+        //name and amount desc
+        else if (searchBy.Equals("Name-Desc-Date-ASC-Amount-DESC") || searchBy.Equals("Name-DESC-Amount-DESC-Date-ASC") || searchBy.Equals("Date-ASC-Name-DESC-Amount-DESC") || searchBy.Equals("Date-ASC-Amount-DESC-Name-DESC") || searchBy.Equals("Amount-DESC-Name-DESC-Date-ASC") || searchBy.Equals("Amount-DESC-Date-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date ASC, t2.Amount ASC";
+        }
+        //date and amount desc
+        else if (searchBy.Equals("Name-ASC-Date-DESC-Amount-DESC") || searchBy.Equals("Name-ASC-Amount-DESC-Date-DESC") || searchBy.Equals("Date-DESC-Name-ASC-Amount-DESC") || searchBy.Equals("Date-DESC-Amount-DESC-Name-ASC") || searchBy.Equals("Amount-DESC-Name-ASC-Date-DESC") || searchBy.Equals("Amount-DESC-Date-DESC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date DESC, t2.Amount DESC";
+        }
+        //name, date, and amount desc
+        else if (searchBy.Equals("Name-DESC-Date-DESC-Amount-DESC") || searchBy.Equals("Name-DESC-Amount-DESC-Date-DESC") || searchBy.Equals("Date-DESC-Name-DESC-Amount-DESC") || searchBy.Equals("Date-DESC-Amount-DESC-Name-DESC") || searchBy.Equals("Amount-DESC-Name-DESC-Date-DESC") || searchBy.Equals("Amount-DESC-Date-DESC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date DESC, t2.Amount DESC";
+        }
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var command = new SqliteCommand(sql, connection);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            result.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            result.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return result;
+    }
+    
     //view event logs for each account in CoA (DONE) (NOT TESTED)
     public static List<string> GetAccountEventLog(int accountNumber)
     {
@@ -528,6 +703,50 @@ public class Manager : User
                 while (reader.Read())
                 {
                     for (int i = 0; i < 7; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            ledger.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            ledger.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return ledger;
+    }
+    
+    public static List<string> GetLedgerByDateRange(string toDate, string fromDate, int accountNum)
+    {
+        List<string> ledger = new List<string>();
+        try
+        {
+            var sql =
+                "SELECT Acct.Name, Acct.Number, JE.Date, JE.Comment, JED.DebitCredit, JED.Amount FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE JE.Status = 'A' AND Acct.Number = @ACCOUNT AND JE.Date BETWEEN @FIRST AND @LAST BY JED.DebitCredit DESC, JE.Date ASC";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@ACCOUNT", accountNum);
+            command.Parameters.AddWithValue("@FIRST", fromDate);
+            command.Parameters.AddWithValue("@LAST", toDate);
+            
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 6; i++)
                     {
                         if (!reader.IsDBNull(i))
                         {
@@ -885,6 +1104,283 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
         return incomeStatement;
     }
+    
+     //Takes in a list of entries for a single account, list contains Amount and DebitCredit
+    public static double GetAccountBalance(List<string> entries, char normalSide)
+    {
+        double balance = 0.00;
+        
+            for (int i = 0; i < ((entries.Count / 2) - 1); i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (normalSide == 'R')
+                    {
+                        if (entries[j].Equals("Debit"))
+                        {
+                            j++;
+                            balance -= double.Parse(entries[j]);
+                        }
+                        else
+                        {
+                            j++;
+                            balance += double.Parse(entries[j]);
+                        }
+                    }
+                    else
+                    {
+                        if (entries[j].Equals("Debit"))
+                        {
+                            j++;
+                            balance -= double.Parse(entries[j]);
+                        }
+                        else
+                        {
+                            j++;
+                            balance += double.Parse(entries[j]);
+                        }
+                    }
+                }
+            }
+        return balance;
+    }
+
+    public static List<string> GetBalanceSheetCategory(string fromDate, string toDate, string category)
+    {
+        List<string> balanceSheet = new List<string>();
+        var sql = "";
+        switch (category)
+        {
+            case "Asset":
+                sql =
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Asset' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                break;
+            case "Liability":
+                sql =
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Liability' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                break;
+            case "Equity":
+                sql =
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Capital' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                break;
+        }
+        
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@START", fromDate);
+            command.Parameters.AddWithValue("@LAST", toDate);
+
+            command.ExecuteNonQuery();
+
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    List<string> returnedEntries = new List<string>();
+                    balanceSheet.Add(reader.GetString(0));
+                    char normalSide = reader.GetChar(2);
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, reader.GetInt32(1));
+                    List<string> temp = new List<string>();
+
+                    //creating a list containing only DebitCredit and Amount to get the total
+                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    {
+                        for (int k = 4; k < 6; k++)
+                        {
+                            temp.Add(relevantEntries[k]);
+                        }
+                    }
+
+                    double balance = GetAccountBalance(temp, normalSide);
+                    balanceSheet.Add("" + balance);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return balanceSheet;
+    }
+
+    public static List<string> GetBalanceSheet(string fromDate, string toDate)
+    {
+        List<string> balanceSheet = new List<string>();
+        try
+        {
+            //getting assets first
+            List<string> temp = new List<string>();
+            temp = GetBalanceSheetCategory(fromDate, toDate, "Asset");
+            //putting the assets into the balance sheet
+            for (int i = 0; i < temp.Count; i++)
+            {
+                balanceSheet.Add(temp[i]); 
+            }
+            
+            //getting liabilities next
+            temp = GetBalanceSheetCategory(fromDate, toDate, "Liability");
+            //putting the liabilities into the balance sheet
+            for (int i = 0; i < temp.Count; i++)
+            {
+                balanceSheet.Add(temp[i]); 
+            }
+            
+            //getting equity last
+            temp = GetBalanceSheetCategory(fromDate, toDate, "Equity");
+            //putting the equity into the balance sheet
+            for (int i = 0; i < temp.Count; i++)
+            {
+                balanceSheet.Add(temp[i]); 
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return balanceSheet;
+    }
+
+    public static List<string> GetTrialBalance(string fromDate, string toDate)
+    {
+        List<string> trialBalance = new List<string>();
+        try
+        {
+            //adds stuff from balance sheet
+            trialBalance = GetBalanceSheet(fromDate, toDate);
+            
+            //adds revenue and expenses
+            List<string> temp = GetIncomeStatement(fromDate, toDate);
+            for (int i = 0; i < temp.Count/2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    trialBalance.Add(temp[j]);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return trialBalance;
+    }
+
+    public static List<string> GetRetainedEarnings(string fromDate, string toDate)
+    {
+        List<string> retainedEarnings = new List<string>();
+        try
+        {
+            var revSql = "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Revenue' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+            var expSql = "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Expense' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+            
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            //getting rev balance for calculating net income
+            var revCommand = new SqliteCommand(revSql, connection);
+            revCommand.Parameters.AddWithValue("@START", fromDate);
+            revCommand.Parameters.AddWithValue("@LAST", toDate);
+
+            revCommand.ExecuteNonQuery();
+            double revBalance = 0;
+
+            using var revReader = revCommand.ExecuteReader();
+            if (revReader.HasRows)
+            {
+                while (revReader.Read())
+                {
+                    List<string> returnedEntries = new List<string>();
+                    char normalSide = revReader.GetChar(2);
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
+                    List<string> temp = new List<string>();
+
+                    //creating a list containing only DebitCredit and Amount to get the total
+                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    {
+                        for (int k = 4; k < 6; k++)
+                        {
+                            temp.Add(relevantEntries[k]);
+                        }
+                    }
+
+                    revBalance = GetAccountBalance(temp, normalSide);
+                }
+            }
+            
+            //getting exp balance for calculating net income
+            var expCommand = new SqliteCommand(expSql, connection);
+            expCommand.Parameters.AddWithValue("@START", fromDate);
+            expCommand.Parameters.AddWithValue("@LAST", toDate);
+
+            revCommand.ExecuteNonQuery();
+            double expBalance = 0;
+
+            using var expReader = revCommand.ExecuteReader();
+            if (expReader.HasRows)
+            {
+                while (expReader.Read())
+                {
+                    List<string> returnedEntries = new List<string>();
+                    char normalSide = expReader.GetChar(2);
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
+                    List<string> temp = new List<string>();
+
+                    //creating a list containing only DebitCredit and Amount to get the total
+                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    {
+                        for (int k = 4; k < 6; k++)
+                        {
+                            temp.Add(relevantEntries[k]);
+                        }
+                    }
+
+                    expBalance = GetAccountBalance(temp, normalSide);
+                }
+            }
+            //net income
+            retainedEarnings.Add(revBalance - expBalance + "");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return retainedEarnings;
+    }
+    
+    //Closing journal entries
+    public static int CreateClosingJournalEntry(string date, string comment, Blob reference, string username)
+    { 
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+        int journalEntryID = -1;
+        try
+        {
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'C')";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var insertCommand = new SqliteCommand(insertSql, connection);
+            insertCommand.Parameters.AddWithValue("@DATE", date);
+            insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+            insertCommand.Parameters.AddWithValue("@COMMENT", comment);
+            insertCommand.Parameters.AddWithValue("@USERID", userID);
+            
+            insertCommand.ExecuteNonQuery();
+            
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
 
     //Takes in a list of entries for a single account, list contains Amount and DebitCredit
     public static double GetAccountBalance(List<string> entries, char normalSide)
