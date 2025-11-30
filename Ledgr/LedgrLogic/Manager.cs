@@ -463,6 +463,181 @@ public class Manager : User
         return result;
     }
     
+    public static List<string> FilterJournalByTwoFilters(string searchByOne, string searchByTwo, string oneAscDesc, string twoAscDesc)
+    {
+        List<string> result = new List<string>();
+        var sql = "";
+        string searchBy = searchByOne + "-" + oneAscDesc + "-" + searchByTwo + "-" + twoAscDesc;
+        
+        //name date
+        if (searchBy.Equals("Name-ASC-Date-ASC") || searchBy.Equals("Date-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date ASC";
+        }
+        else if (searchBy.Equals("Name-DESC-Date-DESC") || searchBy.Equals("Date-DES-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date DESC";
+        }
+        else if (searchBy.Equals("Name-ASC-Date-DESC") || searchBy.Equals("Date-DES-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date DESC";
+        }
+        else if (searchBy.Equals("Name-DESC-Date-ASC") || searchBy.Equals("Date-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date ASC";
+        }
+        //name amount
+        else if (searchBy.Equals("Name-ASC-Amount-ASC") || searchBy.Equals("Amount-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t2.Amount ASC";
+        }
+        else if (searchBy.Equals("Name-DESC-Amount-DESC") || searchBy.Equals("Amount-DESC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Name-ASC-Amount-DESC") || searchBy.Equals("Amount-DESC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Name-DESC-Amount-ASC") || searchBy.Equals("Amount-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t2.Amount ASC";
+        }
+        //Date amount
+        else if (searchBy.Equals("Date-ASC-Amount-ASC") || searchBy.Equals("Amount-ASC-Date-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date ASC, t2.Amount ASC";
+        }
+        else if (searchBy.Equals("Date-DESC-Amount-DESC") || searchBy.Equals("Amount-DESC-Date-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date DESC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Date-ASC-Amount-DESC") || searchBy.Equals("Amount-DESC-Date-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date ASC, t2.Amount DESC";
+        }
+        else if (searchBy.Equals("Date-DESC-Amount-ASC") || searchBy.Equals("Amount-ASC-Date-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t1.Date DESC, t2.Amount ASC";
+        }
+        
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var command = new SqliteCommand(sql, connection);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            result.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            result.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return result;
+    }
+
+    public static List<string> FilterJournalByThreeFilters(string searchByOne, string searchByTwo, string searchByThree,
+        string oneAscDesc, string twoAscDesc, string threeAscDesc)
+    {
+        List<string> result = new List<string>();
+        var sql = "";
+        string searchBy = searchByOne + "-" + oneAscDesc + "-" + searchByTwo + "-" + twoAscDesc + "-" + searchByThree +
+                          "-" + threeAscDesc;
+        //all asc
+        if (searchBy.Equals("Name-ASC-Date-ASC-Amount-ASC") || searchBy.Equals("Name-ASC-Amount-ASC-Date-ASC") || searchBy.Equals("Date-ASC-Name-ASC-Amount-ASC") || searchBy.Equals("Date-ASC-Amount-ASC-Name-ASC") || searchBy.Equals("Amount-ASC-Name-ASC-Date-ASC") || searchBy.Equals("Amount-ASC-Date-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date ASC, t2.Amount ASC";
+        }
+        //name desc
+        else if (searchBy.Equals("Name-Desc-Date-ASC-Amount-ASC") || searchBy.Equals("Name-DESC-Amount-ASC-Date-ASC") || searchBy.Equals("Date-ASC-Name-DESC-Amount-ASC") || searchBy.Equals("Date-ASC-Amount-ASC-Name-DESC") || searchBy.Equals("Amount-ASC-Name-DESC-Date-ASC") || searchBy.Equals("Amount-ASC-Date-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date ASC, t2.Amount ASC";
+        }
+        //date desc
+        else if (searchBy.Equals("Name-ASC-Date-DESC-Amount-ASC") || searchBy.Equals("Name-ASC-Amount-ASC-Date-DESC") || searchBy.Equals("Date-DESC-Name-ASC-Amount-ASC") || searchBy.Equals("Date-DESC-Amount-ASC-Name-ASC") || searchBy.Equals("Amount-ASC-Name-ASC-Date-DESC") || searchBy.Equals("Amount-ASC-Date-DESC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date DESC, t2.Amount ASC";
+        }
+        //amount desc
+        else if (searchBy.Equals("Name-ASC-Date-ASC-Amount-DESC") || searchBy.Equals("Name-ASC-Amount-DESC-Date-ASC") || searchBy.Equals("Date-ASC-Name-ASC-Amount-DESC") || searchBy.Equals("Date-ASC-Amount-DESC-Name-ASC") || searchBy.Equals("Amount-DESC-Name-ASC-Date-ASC") || searchBy.Equals("Amount-DESC-Date-ASC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date ASC, t2.Amount DESC";
+        }
+        //name and date desc
+        else if (searchBy.Equals("Name-Desc-Date-DESC-Amount-ASC") || searchBy.Equals("Name-DESC-Amount-ASC-Date-DESC") || searchBy.Equals("Date-DESC-Name-DESC-Amount-ASC") || searchBy.Equals("Date-DESC-Amount-ASC-Name-DESC") || searchBy.Equals("Amount-ASC-Name-DESC-Date-DESC") || searchBy.Equals("Amount-ASC-Date-DESC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date DESC, t2.Amount ASC";
+        }
+        //name and amount desc
+        else if (searchBy.Equals("Name-Desc-Date-ASC-Amount-DESC") || searchBy.Equals("Name-DESC-Amount-DESC-Date-ASC") || searchBy.Equals("Date-ASC-Name-DESC-Amount-DESC") || searchBy.Equals("Date-ASC-Amount-DESC-Name-DESC") || searchBy.Equals("Amount-DESC-Name-DESC-Date-ASC") || searchBy.Equals("Amount-DESC-Date-ASC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date ASC, t2.Amount ASC";
+        }
+        //date and amount desc
+        else if (searchBy.Equals("Name-ASC-Date-DESC-Amount-DESC") || searchBy.Equals("Name-ASC-Amount-DESC-Date-DESC") || searchBy.Equals("Date-DESC-Name-ASC-Amount-DESC") || searchBy.Equals("Date-DESC-Amount-DESC-Name-ASC") || searchBy.Equals("Amount-DESC-Name-ASC-Date-DESC") || searchBy.Equals("Amount-DESC-Date-DESC-Name-ASC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name ASC, t1.Date DESC, t2.Amount DESC";
+        }
+        //name, date, and amount desc
+        else if (searchBy.Equals("Name-DESC-Date-DESC-Amount-DESC") || searchBy.Equals("Name-DESC-Amount-DESC-Date-DESC") || searchBy.Equals("Date-DESC-Name-DESC-Amount-DESC") || searchBy.Equals("Date-DESC-Amount-DESC-Name-DESC") || searchBy.Equals("Amount-DESC-Name-DESC-Date-DESC") || searchBy.Equals("Amount-DESC-Date-DESC-Name-DESC"))
+        {
+            sql = "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID ORDER BY t3.Name DESC, t1.Date DESC, t2.Amount DESC";
+        }
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var command = new SqliteCommand(sql, connection);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            result.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            result.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return result;
+    }
+    
     //view event logs for each account in CoA (DONE) (NOT TESTED)
     public static List<string> GetAccountEventLog(int accountNumber)
     {
