@@ -778,49 +778,6 @@ public class Manager : User
     
     //CreateJournalEntry() creates a new entry in the JournalEntry table, and returns the ID of that new entry
     //Comments and reference docs are optional, so there will be multiple methods but with different paramaters
-    public static List<string> GetLedgerByDateRange(string toDate, string fromDate, int accountNum)
-    {
-        List<string> ledger = new List<string>();
-        try
-        {
-            var sql =
-                "SELECT Acct.Name, Acct.Number, JE.Date, JE.Comment, JED.DebitCredit, JED.Amount FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE JE.Status = 'A' AND Acct.Number = @ACCOUNT AND JE.Date BETWEEN @FIRST AND @LAST BY JED.DebitCredit DESC, JE.Date ASC";
-            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
-            connection.Open();
-            
-            var command = new SqliteCommand(sql, connection);
-            command.Parameters.AddWithValue("@ACCOUNT", accountNum);
-            command.Parameters.AddWithValue("@FIRST", fromDate);
-            command.Parameters.AddWithValue("@LAST", toDate);
-            
-            using var reader = command.ExecuteReader();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
-                {
-                    for (int i = 0; i < 6; i++)
-                    {
-                        if (!reader.IsDBNull(i))
-                        {
-                            ledger.Add(reader.GetString(i));
-                        }
-                        else
-                        {
-                            ledger.Add("");
-                        }
-                    }
-                }
-            }
-            connection.Close();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-
-        return ledger;
-    }
     
     public static int CreateAdjustingJournalEntry(string date, string comment, Blob reference, string username)
     { 
@@ -1363,62 +1320,27 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
     
     //Closing journal entries
     public static int CreateClosingJournalEntry(string date, string comment, Blob reference, string username)
-    { 
+    {
         int userID = GetUserFromUserName(username).Result.GetUserID();
         int journalEntryID = -1;
         try
         {
-            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'C')";
+            var insertSql =
+                "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'C')";
             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
             connection.Open();
-            
+
             var insertCommand = new SqliteCommand(insertSql, connection);
             insertCommand.Parameters.AddWithValue("@DATE", date);
             insertCommand.Parameters.AddWithValue("@STATUS", 'P');
             insertCommand.Parameters.AddWithValue("@COMMENT", comment);
             insertCommand.Parameters.AddWithValue("@USERID", userID);
-            
+
             insertCommand.ExecuteNonQuery();
-            
+
             var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
 
-    //Takes in a list of entries for a single account, list contains Amount and DebitCredit
-    public static double GetAccountBalance(List<string> entries, char normalSide)
-    {
-        double balance = 0.00;
-        
-            for (int i = 0; i < ((entries.Count / 2) - 1); i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    if (normalSide == 'R')
-                    {
-                        if (entries[j].Equals("Debit"))
-                        {
-                            j++;
-                            balance += double.Parse(entries[j]);
-                        }
-                        else
-                        {
-                            j++;
-                            balance -= double.Parse(entries[j]);
-                        }
-                    }
-                    else
-                    {
-                        if (entries[j].Equals("Debit"))
-                        {
-                            j++;
-                            balance -= double.Parse(entries[j]);
-                        }
-                        else
-                        {
-                            j++;
-                            balance += double.Parse(entries[j]);
-                        }
-                    }
-                }
-            }
-        return balance;
+        }
     }
+    
 }
