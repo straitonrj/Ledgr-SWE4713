@@ -534,6 +534,50 @@ public class Manager : User
         return ledger;
     }
     
+    public static List<string> GetLedgerByDateRange(string toDate, string fromDate, int accountNum)
+    {
+        List<string> ledger = new List<string>();
+        try
+        {
+            var sql =
+                "SELECT Acct.Name, Acct.Number, JE.Date, JE.Comment, JED.DebitCredit, JED.Amount FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE JE.Status = 'A' AND Acct.Number = @ACCOUNT AND JE.Date BETWEEN @FIRST AND @LAST BY JED.DebitCredit DESC, JE.Date ASC";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@ACCOUNT", accountNum);
+            command.Parameters.AddWithValue("@FIRST", fromDate);
+            command.Parameters.AddWithValue("@LAST", toDate);
+            
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            ledger.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            ledger.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return ledger;
+    }
+    
     //Ledger must allow filtering and search features
     
     //Adjusting journal entries
@@ -794,6 +838,262 @@ public class Manager : User
         }
 
         return incomeStatement;
+    }
+    
+     //Takes in a list of entries for a single account, list contains Amount and DebitCredit
+    public static double GetAccountBalance(List<string> entries, char normalSide)
+    {
+        double balance = 0.00;
+        
+            for (int i = 0; i < ((entries.Count / 2) - 1); i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (normalSide == 'R')
+                    {
+                        if (entries[j].Equals("Debit"))
+                        {
+                            j++;
+                            balance -= double.Parse(entries[j]);
+                        }
+                        else
+                        {
+                            j++;
+                            balance += double.Parse(entries[j]);
+                        }
+                    }
+                    else
+                    {
+                        if (entries[j].Equals("Debit"))
+                        {
+                            j++;
+                            balance -= double.Parse(entries[j]);
+                        }
+                        else
+                        {
+                            j++;
+                            balance += double.Parse(entries[j]);
+                        }
+                    }
+                }
+            }
+        return balance;
+    }
+
+    public static List<string> GetBalanceSheetCategory(string fromDate, string toDate, string category)
+    {
+        List<string> balanceSheet = new List<string>();
+        var sql = "";
+        switch (category)
+        {
+            case "Asset":
+                sql =
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Asset' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                break;
+            case "Liability":
+                sql =
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Liability' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                break;
+            case "Equity":
+                sql =
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Capital' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                break;
+        }
+        
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@START", fromDate);
+            command.Parameters.AddWithValue("@LAST", toDate);
+
+            command.ExecuteNonQuery();
+
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    List<string> returnedEntries = new List<string>();
+                    balanceSheet.Add(reader.GetString(0));
+                    char normalSide = reader.GetChar(2);
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, reader.GetInt32(1));
+                    List<string> temp = new List<string>();
+
+                    //creating a list containing only DebitCredit and Amount to get the total
+                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    {
+                        for (int k = 4; k < 6; k++)
+                        {
+                            temp.Add(relevantEntries[k]);
+                        }
+                    }
+
+                    double balance = GetAccountBalance(temp, normalSide);
+                    balanceSheet.Add("" + balance);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return balanceSheet;
+    }
+
+    public static List<string> GetBalanceSheet(string fromDate, string toDate)
+    {
+        List<string> balanceSheet = new List<string>();
+        try
+        {
+            //getting assets first
+            List<string> temp = new List<string>();
+            temp = GetBalanceSheetCategory(fromDate, toDate, "Asset");
+            //putting the assets into the balance sheet
+            for (int i = 0; i < temp.Count; i++)
+            {
+                balanceSheet.Add(temp[i]); 
+            }
+            
+            //getting liabilities next
+            temp = GetBalanceSheetCategory(fromDate, toDate, "Liability");
+            //putting the liabilities into the balance sheet
+            for (int i = 0; i < temp.Count; i++)
+            {
+                balanceSheet.Add(temp[i]); 
+            }
+            
+            //getting equity last
+            temp = GetBalanceSheetCategory(fromDate, toDate, "Equity");
+            //putting the equity into the balance sheet
+            for (int i = 0; i < temp.Count; i++)
+            {
+                balanceSheet.Add(temp[i]); 
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return balanceSheet;
+    }
+
+    public static List<string> GetTrialBalance(string fromDate, string toDate)
+    {
+        List<string> trialBalance = new List<string>();
+        try
+        {
+            //adds stuff from balance sheet
+            trialBalance = GetBalanceSheet(fromDate, toDate);
+            
+            //adds revenue and expenses
+            List<string> temp = GetIncomeStatement(fromDate, toDate);
+            for (int i = 0; i < temp.Count/2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    trialBalance.Add(temp[j]);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return trialBalance;
+    }
+
+    public static List<string> GetRetainedEarnings(string fromDate, string toDate)
+    {
+        List<string> retainedEarnings = new List<string>();
+        try
+        {
+            var revSql = "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Revenue' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+            var expSql = "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Expense' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+            
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            //getting rev balance for calculating net income
+            var revCommand = new SqliteCommand(revSql, connection);
+            revCommand.Parameters.AddWithValue("@START", fromDate);
+            revCommand.Parameters.AddWithValue("@LAST", toDate);
+
+            revCommand.ExecuteNonQuery();
+            double revBalance = 0;
+
+            using var revReader = revCommand.ExecuteReader();
+            if (revReader.HasRows)
+            {
+                while (revReader.Read())
+                {
+                    List<string> returnedEntries = new List<string>();
+                    char normalSide = revReader.GetChar(2);
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
+                    List<string> temp = new List<string>();
+
+                    //creating a list containing only DebitCredit and Amount to get the total
+                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    {
+                        for (int k = 4; k < 6; k++)
+                        {
+                            temp.Add(relevantEntries[k]);
+                        }
+                    }
+
+                    revBalance = GetAccountBalance(temp, normalSide);
+                }
+            }
+            
+            //getting exp balance for calculating net income
+            var expCommand = new SqliteCommand(expSql, connection);
+            expCommand.Parameters.AddWithValue("@START", fromDate);
+            expCommand.Parameters.AddWithValue("@LAST", toDate);
+
+            revCommand.ExecuteNonQuery();
+            double expBalance = 0;
+
+            using var expReader = revCommand.ExecuteReader();
+            if (expReader.HasRows)
+            {
+                while (expReader.Read())
+                {
+                    List<string> returnedEntries = new List<string>();
+                    char normalSide = expReader.GetChar(2);
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
+                    List<string> temp = new List<string>();
+
+                    //creating a list containing only DebitCredit and Amount to get the total
+                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    {
+                        for (int k = 4; k < 6; k++)
+                        {
+                            temp.Add(relevantEntries[k]);
+                        }
+                    }
+
+                    expBalance = GetAccountBalance(temp, normalSide);
+                }
+            }
+            //net income
+            retainedEarnings.Add(revBalance - expBalance + "");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return retainedEarnings;
     }
     
     //Closing journal entries
