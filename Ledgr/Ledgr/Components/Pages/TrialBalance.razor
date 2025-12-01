@@ -143,12 +143,20 @@
             <tr>
               <th>Account No.</th>
               <th>Account Name</th>
-              <th class="right">Debit</th>
-              <th class="right">Credit</th>
+              <th class="right">Balance</th>
             </tr>
             </thead>
             <tbody id="tbBody">
             <!-- Example static rows for layout -->
+            @for (int i = 0; i < TB.Count; i += 2)
+            {
+              int index = i;
+              <tr>
+                <td>@AccountNumbers[index / 2]</td>
+                <td>@TB[index]</td>
+                <td>@TB[index + 1]</td>
+              </tr>
+            }
             <tr>
               <td>1010</td>
               <td>Cash</td>
@@ -218,11 +226,23 @@
   public string CalendarDate = DateTime.Today.ToString("M");
   public string ReportDate = DateTime.Today.ToString("d");
 
+  public string toDate = DateTime.Today.ToString("yyyy-MM-dd");
+  public string fromDate = DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd");
+  public List<string> TB = new List<string>();
+  public List<string> AccountNumbers = new List<string>();
 
   protected override async Task OnParametersSetAsync()
   {
     Role = User.GetUserFromUserName(Username).Result.GetRole();
     StateHasChanged();
+
+    TB = Manager.GetTrialBalance(fromDate, toDate);
+    for (int i = 0; i < TB.Count; i += 2)
+    {
+      AccountNumbers.Add(Account.GetAccountNumberFromAccountName(TB[i]).Result);
+      //Console.WriteLine(Account.GetAccountNumberFromAccountName(TB[i]).Result);
+      //Console.WriteLine(TB[i+1]);
+    }
   }
 
 }

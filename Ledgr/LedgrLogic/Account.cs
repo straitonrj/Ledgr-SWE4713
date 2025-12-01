@@ -90,6 +90,36 @@ public static class Account
         return Account;
     }
 
+    public static async Task<string> GetAccountNumberFromAccountName(string name)
+    {
+        string num = "";
+        try
+        {
+            string sql = "Select Number FROM Account where Name = @NAME";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            using var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@NAME", name);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    num = reader.GetString(0);
+                }
+            }
+            await connection.CloseAsync();
+            return num;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return "Error";
+    }
     public static async Task<string> GetAccountNameFromAccountNumber(string accountNumber)
     {
         string name = "";

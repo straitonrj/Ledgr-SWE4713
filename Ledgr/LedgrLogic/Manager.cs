@@ -732,7 +732,7 @@ public class Manager : User
         try
         {
             var sql =
-                "SELECT Acct.Name, Acct.Number, JE.Date, JE.Comment, JED.DebitCredit, JED.Amount FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE JE.Status = 'A' AND Acct.Number = @ACCOUNT AND JE.Date BETWEEN @FIRST AND @LAST BY JED.DebitCredit DESC, JE.Date ASC";
+                "SELECT Acct.Name, Acct.Number, JE.Date, JE.Comment, JED.DebitCredit, JED.Amount FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE JE.Status = 'A' AND Acct.Number = @ACCOUNT AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY JED.DebitCredit DESC, JE.Date ASC";
             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
             connection.Open();
             
@@ -1015,7 +1015,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
         {
             //var sql = "Select Acct.Name, JED.Amount, JED.DebitCredit, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Revenue'  AND JE.Date BETWEEN '2025-10-01' AND '2025-11-03' OR Acct.Category = 'Expense'  AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.Category DESC, Acct.\"Order\" ASC";
             var sql =
-                "SELECT Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Name = 'Revenue' AND JE.Date BETWEEN @FIRST AND @LAST OR Acct.Name = 'Expense' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                "SELECT Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Name = 'Revenue' AND JE.Date BETWEEN @START AND @LAST OR Acct.Name = 'Expense' AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.\"Order\" ASC";
             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
             connection.Open();
             
@@ -1110,15 +1110,15 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
         {
             case "Asset":
                 sql =
-                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Asset' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Asset' AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.\"Order\" ASC";
                 break;
             case "Liability":
                 sql =
-                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Liability' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Liability' AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.\"Order\" ASC";
                 break;
             case "Equity":
                 sql =
-                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Capital' AND JE.Date BETWEEN @FIRST AND @LAST ORDER BY Acct.\"Order\" ASC";
+                    "SELECT Acct.Name, Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Capital' AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.\"Order\" ASC";
                 break;
         }
         
@@ -1320,27 +1320,436 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
     
     //Closing journal entries
     public static int CreateClosingJournalEntry(string date, string comment, Blob reference, string username)
-    {
+    { 
         int userID = GetUserFromUserName(username).Result.GetUserID();
         int journalEntryID = -1;
         try
         {
-            var insertSql =
-                "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'C')";
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'C')";
             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
             connection.Open();
-
+            
             var insertCommand = new SqliteCommand(insertSql, connection);
             insertCommand.Parameters.AddWithValue("@DATE", date);
             insertCommand.Parameters.AddWithValue("@STATUS", 'P');
             insertCommand.Parameters.AddWithValue("@COMMENT", comment);
             insertCommand.Parameters.AddWithValue("@USERID", userID);
+            
+            insertCommand.ExecuteNonQuery();
+            
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
 
+            var selectCommand = new SqliteCommand(selectSql, connection);
+
+            using var reader = selectCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    journalEntryID = reader.GetInt32(0);
+                }
+            }
+            connection.Close();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            //throw some error here
+        }
+
+        return journalEntryID;
+    }
+    public static int CreateClosingJournalEntry(string date, string comment, string username)
+    {
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+        int journalEntryID = -1;
+        try
+        {
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'C')";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var insertCommand = new SqliteCommand(insertSql, connection);
+            insertCommand.Parameters.AddWithValue("@DATE", date);
+            insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+            insertCommand.Parameters.AddWithValue("@COMMENT", comment);
+            insertCommand.Parameters.AddWithValue("@USERID", userID);
+            
             insertCommand.ExecuteNonQuery();
 
             var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
 
+            var selectCommand = new SqliteCommand(selectSql, connection);
+
+            using var reader = selectCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    journalEntryID = reader.GetInt32(0);
+                }
+            }
+            connection.Close();
         }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            //throw some error here
+        }
+
+        return journalEntryID;
+    }
+
+    public static int CreateClosingJournalEntry(string date, Blob reference, string username)
+    {
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+        int journalEntryID = -1;
+        try
+        {
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Reference, UserID, Type) VALUES(null, @DATE, @STATUS, @REFERENCE, @USERID, 'C')";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var insertCommand = new SqliteCommand(insertSql, connection);
+            insertCommand.Parameters.AddWithValue("@DATE", date);
+            insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+            insertCommand.Parameters.AddWithValue("@REFERENCE", reference);
+            insertCommand.Parameters.AddWithValue("@USERID", userID);
+
+            insertCommand.ExecuteNonQuery();
+            
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+
+            var selectCommand = new SqliteCommand(selectSql, connection);
+
+            using var reader = selectCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    journalEntryID = reader.GetInt32(0);
+                }
+            }
+            connection.Close();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            //throw some error here
+        }
+
+        return journalEntryID;
+    }
+
+    public static int CreateClosingJournalEntry(string date, string username)
+    {
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+            int journalEntryID = -1;
+            try
+            {
+                var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, UserID, Type) VALUES(null, @DATE, @STATUS, @USERID,'C')";
+                using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+                connection.Open();
+            
+                var insertCommand = new SqliteCommand(insertSql, connection);
+                insertCommand.Parameters.AddWithValue("@DATE", date);
+                insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+                insertCommand.Parameters.AddWithValue("@USERID", userID);
+
+                insertCommand.ExecuteNonQuery();
+                
+                var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+
+                var selectCommand = new SqliteCommand(selectSql, connection);
+
+                using var reader = selectCommand.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        journalEntryID = reader.GetInt32(0);
+                    }
+                }
+                connection.Close();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                //throw some error here
+            }
+
+            return journalEntryID;
     }
     
+    
+     public static List<string> ViewClosingEntriesByStatus(char status)
+    {
+        List<string> entries = new List<string>();
+        using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+        var sql = "";
+
+        switch (status)
+        {
+            case ('P'):
+                sql =
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'P' AND t1.Type = 'C'";
+                break;
+            case('A'):
+                  sql =
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'C' AND t1.Type = 'A'";
+                break;
+            case('R'):
+                  sql =
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'C' AND t1.Type = 'A'";
+                break;
+        }
+        try
+        {
+            var command = new SqliteCommand(sql, connection);
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            entries.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            entries.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return entries;
+    }
+     
+     //Reversing journal entries
+    public static int CreateReversingJournalEntry(string date, string comment, Blob reference, string username)
+    { 
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+        int journalEntryID = -1;
+        try
+        {
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'R')";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var insertCommand = new SqliteCommand(insertSql, connection);
+            insertCommand.Parameters.AddWithValue("@DATE", date);
+            insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+            insertCommand.Parameters.AddWithValue("@COMMENT", comment);
+            insertCommand.Parameters.AddWithValue("@USERID", userID);
+            
+            insertCommand.ExecuteNonQuery();
+            
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+
+            var selectCommand = new SqliteCommand(selectSql, connection);
+
+            using var reader = selectCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    journalEntryID = reader.GetInt32(0);
+                }
+            }
+            connection.Close();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            //throw some error here
+        }
+
+        return journalEntryID;
+    }
+    public static int CreateReversingJournalEntry(string date, string comment, string username)
+    {
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+        int journalEntryID = -1;
+        try
+        {
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Comment, UserID, Type) VALUES(null, @DATE, @STATUS, @COMMENT, @USERID, 'R')";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var insertCommand = new SqliteCommand(insertSql, connection);
+            insertCommand.Parameters.AddWithValue("@DATE", date);
+            insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+            insertCommand.Parameters.AddWithValue("@COMMENT", comment);
+            insertCommand.Parameters.AddWithValue("@USERID", userID);
+            
+            insertCommand.ExecuteNonQuery();
+
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+
+            var selectCommand = new SqliteCommand(selectSql, connection);
+
+            using var reader = selectCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    journalEntryID = reader.GetInt32(0);
+                }
+            }
+            connection.Close();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            //throw some error here
+        }
+
+        return journalEntryID;
+    }
+
+    public static int CreateReversingJournalEntry(string date, Blob reference, string username)
+    {
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+        int journalEntryID = -1;
+        try
+        {
+            var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, Reference, UserID, Type) VALUES(null, @DATE, @STATUS, @REFERENCE, @USERID, 'R')";
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+            
+            var insertCommand = new SqliteCommand(insertSql, connection);
+            insertCommand.Parameters.AddWithValue("@DATE", date);
+            insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+            insertCommand.Parameters.AddWithValue("@REFERENCE", reference);
+            insertCommand.Parameters.AddWithValue("@USERID", userID);
+
+            insertCommand.ExecuteNonQuery();
+            
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+
+            var selectCommand = new SqliteCommand(selectSql, connection);
+
+            using var reader = selectCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    journalEntryID = reader.GetInt32(0);
+                }
+            }
+            connection.Close();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+            //throw some error here
+        }
+
+        return journalEntryID;
+    }
+
+    public static int CreateReversingJournalEntry(string date, string username)
+    {
+        int userID = GetUserFromUserName(username).Result.GetUserID();
+            int journalEntryID = -1;
+            try
+            {
+                var insertSql = "INSERT INTO JournalEntry(ID, Date, Status, UserID, Type) VALUES(null, @DATE, @STATUS, @USERID,'R')";
+                using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+                connection.Open();
+            
+                var insertCommand = new SqliteCommand(insertSql, connection);
+                insertCommand.Parameters.AddWithValue("@DATE", date);
+                insertCommand.Parameters.AddWithValue("@STATUS", 'P');
+                insertCommand.Parameters.AddWithValue("@USERID", userID);
+
+                insertCommand.ExecuteNonQuery();
+                
+                var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+
+                var selectCommand = new SqliteCommand(selectSql, connection);
+
+                using var reader = selectCommand.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        journalEntryID = reader.GetInt32(0);
+                    }
+                }
+                connection.Close();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                //throw some error here
+            }
+
+            return journalEntryID;
+    }
+    
+    
+     public static List<string> ViewReversingEntriesByStatus(char status)
+    {
+        List<string> entries = new List<string>();
+        using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+        var sql = "";
+
+        switch (status)
+        {
+            case ('P'):
+                sql =
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'P' AND t1.Type = 'R'";
+                break;
+            case('A'):
+                  sql =
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
+                break;
+            case('R'):
+                  sql =
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
+                break;
+        }
+        try
+        {
+            var command = new SqliteCommand(sql, connection);
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            entries.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            entries.Add("");
+                        }
+                    }
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return entries;
+    }
 }
