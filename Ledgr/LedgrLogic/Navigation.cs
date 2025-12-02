@@ -99,4 +99,9 @@ public class Navigation
     {
         _nav.NavigateTo("/");
     }
+
+    public void ViewJournalEntry(string Username, string EntryID)
+    {
+        _nav.NavigateTo($"/journalViewEntry/{Username}/{EntryID}");
+    }
 }

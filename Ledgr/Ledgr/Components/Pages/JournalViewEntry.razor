@@ -1,0 +1,306 @@
+@page "/journalViewEntry/{Username}/{EntryID}"
+@using System.Collections
+@using System.Reflection.Metadata
+@using LedgrLogic
+@using Org.BouncyCastle.Tls
+@inject NavigationManager NavigationManager
+@inject Navigation Nav
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Journal Entry • LEDGR</title>
+
+    <!-- Base + Page Styles -->
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/journal.css" />
+</head>
+
+<body class="page page--journal" data-page="entry">
+<!-- HEADER -->
+<header class="app-header">
+    <div class="app-header__top">
+        <div class="brand">
+            <img src="logo-slogan.png" alt="LEDGR" class="brand__logo" />
+        </div>
+
+        <div class="user">
+            <button id="userMenuBtn" class="user__btn">
+                <span class="user__name" id="activeUserName">@Username</span>
+                <svg class="icon icon--caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+
+            <ul id="userMenu" class="menu" hidden>
+                <li><button class="menu__item" id="logoutBtn">Log out</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <nav class="app-nav">
+        <div class="app-nav__inner">
+            <ul class="app-nav__list">
+                <li><a @onclick="() => Nav.Home(Username)" class="app-nav__link" href="#">Dashboard</a></li>
+                <li><a @onclick="() => Nav.CoAListCall(Username)" class="app-nav__link" href="#">Chart of Accounts</a></li>
+                <li><a @onclick="() => Nav.CoAEventLog(Username)" class="app-nav__link" href="#">Event Log</a></li>
+                <li><a @onclick="() => Nav.JournalCall(Username)" class="app-nav__link is-active" href="#">Journal</a></li>
+                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Adjusting Entries</a></li>
+                <li><a @onclick="() => Nav.Reports(Username)" class="app-nav__link" href="#">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<SideBar>
+    <button @onclick="(() => Nav.Home(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Dashboard</button>
+    <button @onclick="(() => Nav.CoAListCall(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Chart of Accounts List</button>
+    <button @onclick="(() => Nav.CoAForm(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none" >Chart of Accounts Form</button>
+    <button @onclick="(() => Nav.CoAEventLog(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none" >Chart of Accounts Event Log</button>
+    @if (Role == "Admin")
+    {
+    <button @onclick="() => Nav.ManageUser(Username)" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Manage Users</button>
+    <button @onclick="() => Nav.PasswordReport(Username)" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Password Report</button>
+    }
+</SideBar>
+
+<!-- Breadcrumbs -->
+<div class="breadcrumbs">
+    <a href="journal.html" class="crumb">
+        <svg viewBox="0 0 24 24" class="icon"><path d="M15 6l-6 6 6 6"/></svg>
+        <span>Return</span>
+    </a>
+    <span class="sep">/</span>
+    <a href="journal.html" class="crumb">Journal</a>
+    <span class="sep">/</span>
+    <span class="crumb current">New Journal Entry</span>
+</div>
+
+<!-- DATE DROPDOWN BOX -->
+<div class="toolbar">
+    <button id="dateBtn" class="date-btn" aria-haspopup="dialog" aria-expanded="false">
+        <svg class="icon icon--calendar" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm14 8H3v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10Zm-14 4h6v4H7v-4Z"/>
+        </svg>
+        <span id="dateText">@CalendarDate</span>
+    </button>
+    <input id="dateInput" type="date" class="visually-hidden">
+</div>
+
+<!-- CALENDAR -->
+<div id="calendarPopover" class="cal" role="dialog" aria-modal="true" aria-labelledby="calLabel" hidden>
+    <div class="cal__inner">
+        <div class="cal__header">
+            <button class="cal__nav" data-dir="-1" aria-label="Previous month">‹</button>
+            <div id="calLabel" class="cal__label">October 2025</div>
+            <button class="cal__nav" data-dir="1" aria-label="Next month">›</button>
+        </div>
+        <div class="cal__grid cal__dow">
+            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+        </div>
+        <div id="calGrid" class="cal__grid"></div>
+    </div>
+</div>
+
+<main class="container">
+    <!-- List card -->
+    <section class="cards">
+        <article id="journalEntryCard" class="card card--page" aria-labelledby="jeTitle">
+            <div class="page-head page-head--stack">
+                <div>
+                    <h1 id="jeTitle" class="h2">Journal Entry</h1>
+                    <h2 class="muted">Create / Edit your journal entry</h2>
+                </div>
+            </div>
+
+            @if (Alert != string.Empty)
+            {
+            <div class="alert">
+                <p><strong>@Alert</strong></p>
+            </div>
+            }
+
+            <!-- Journal Form -->
+            <form id="journalForm" novalidate>
+                <div class="form-grid">
+                    <div class="field">
+                        <span class="label">Reference</span>
+                        <output id="jeRef" class="output output--center">JE - @newEntryID</output>
+                    </div>
+                    <label class="field">
+                        <span class="label">Date</span>
+                        <div class="date-field">
+                            <svg class="icon icon--calendar" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm14 8H3v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10Zm-14 4h6v4H7v-4Z"/>
+                            </svg>
+                            <InputText @bind-Value="JournalDate" type="date" id="jeDate" required />
+                        </div>
+                    </label>
+                </div>
+
+                <fieldset class="lines">
+                    <legend class="legend">Journal Entries</legend>
+
+                    <div class="line-head">
+                        <span>Account</span>
+                        <span class="right">Debit</span>
+                        <span class="right">Credit</span>
+                    </div>
+
+                    <div id="lineItems" class="line-items">
+                        @for (int i = 0; i < DebitLines.Count; i++)
+                        {
+                        int index = i;
+                        <div class="line-item">
+                            <!-- Account Effected -->
+                            <InputText @bind-Value="DebitAccountNames[index]" readonly></InputText>
+                            <!-- Amount -->
+                            <InputText @bind-Value="DebitsFormatted[index]" style="text-align: right" readonly></InputText>
+                            <!-- Empty Credit Field -->
+                            <InputText @bind-Value="empty" readonly=""></InputText>
+                        </div>
+                        }
+                        
+                        @for (int i = 0; i < CreditLines.Count; i++)
+                        {
+                        int index = i;
+                        <div class="line-item">
+                            <!-- Account Effected -->
+                            <InputText @bind-Value="CreditAccountNames[index]" readonly></InputText>
+                            <!-- Empty Debit Field -->
+                            <InputText @bind-Value="empty" readonly=""></InputText>
+                            <!-- Amount -->
+                            <InputText @bind-Value="CreditsFormatted[index]" style="text-align: right" readonly></InputText>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="totals">
+                        <div class="totals__row">
+                            <span>Totals</span>
+                            <output id="totalDebit" class="num">$@TotalDebitsFormat</output>
+                            <output id="totalCredit" class="num">$@TotalCreditsFormat</output>
+                            <span></span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Description/Comment Field -->
+                <label class="field">
+                    <span class="label">Description / Comment <span class="muted"></span></span>
+                    <InputTextArea @bind-Value="Comment" readonly id="jeDesc" rows="3" placeholder="No comments provided for this entry."></InputTextArea>
+                </label>
+
+                <div class="form-actions">
+                    <!-- <button type="button" id="saveDraft" class="btn btn--secondary">Save Draft</button>
+                    <button @onclick="ResetForm" type="button" id="resetForm" class="btn btn--secondary">Reset Form</button>
+                    <button @onclick="SubmitEntry" type="button" id="submitForApproval" class="btn btn--primary">Submit for Approval</button> -->
+                </div>
+
+                <!-- Activity Log 
+                <section aria-labelledby="activityTitle" class="activity">
+                    <h1 id="activityTitle" class="h2">Activity Log</h1>
+                    <div id="activityLog" class="activity__items"></div>
+                </section>
+                -->
+            </form>
+        </article>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="app-footer">
+    <div class="app-footer__inner">
+        <nav class="footer-nav">
+            <a @onclick="() => Nav.HelpPage(Username)" href="#" class="link">Help</a>
+            <a class="link" href="privacy.html">Privacy</a>
+            <a class="link" href="terms.html">Terms</a>
+        </nav>
+        <small class="muted">© 2025 LEDGR · Build v0.1</small>
+    </div>
+</footer>
+
+<script src="/app.js"></script>
+<script src="/journal.js"></script>
+
+</body>
+</html>
+
+@code{
+
+    [Parameter] public string Username { get; set; }
+    [Parameter] public string EntryID { get; set; }
+    public string newEntryID { get; set; } = string.Empty;
+
+    public string Role { get; set; } = string.Empty;
+    public string CalendarDate = DateTime.Today.ToString("M");
+
+    public List<string> EntryLines = new List<string>();
+    public int NumLines = 0;
+    public string empty { get; set; } = string.Empty;
+
+    // Journal Specific
+    public string Comment { get; set; } = string.Empty;
+    public List<string> DebitAccountNames { get; set; } = new List<string>();
+    public List<string> CreditAccountNames { get; set; } = new List<string>();
+
+    public List<Double> DebitLines { get; set; } = new List<Double>();
+    public List<Double> CreditLines { get; set; } = new List<Double>();
+    public List<string> DebitsFormatted { get; set; } = new List<string>();
+    public List<string> CreditsFormatted { get; set; } = new List<string>();
+    public string JournalDate { get; set; } = string.Empty;
+
+    public int numDebitLines { get; set; }= 0;
+
+    public double TotalDebits => DebitLines.Sum();
+    public double TotalCredits => CreditLines.Sum();
+
+    public string TotalDebitsFormat => TotalDebits.ToString("F2");
+    public string TotalCreditsFormat => TotalDebits.ToString("F2");
+
+    // Passing Parameters
+    public string Date { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    private IBrowserFile? RefDoc;
+
+    // Alerts
+    public string Alert { get; set; } = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        newEntryID = Manager.GetJournalIDFromEntryLine(EntryID).Result;
+        Role = User.GetUserFromUserName(Username).Result.GetRole();
+        EntryLines = Manager.ViewJournalEntry(newEntryID).Result;
+        NumLines = EntryLines.Count / 3;
+        Comment = Manager.GetJournalEntryComment(newEntryID);
+        Date = Manager.GetDateFromJournalEntry(newEntryID).Result;
+
+        for (int i = 0; i < EntryLines.Count; i += 3)
+        {
+            if (EntryLines[i + 2] == "Debit")
+            {
+                numDebitLines++;
+                DebitLines.Add(Convert.ToDouble(EntryLines[i + 1]));
+                DebitsFormatted.Add(Convert.ToDouble(EntryLines[i + 1]).ToString("N2"));
+                string temp = Account.GetAccountNameFromAccountNumber(EntryLines[i]).Result;
+                DebitAccountNames.Add(temp);
+            }
+        }
+
+        for (int i = 0; i < EntryLines.Count; i += 3)
+        {
+            if (EntryLines[i + 2] == "Credit")
+            {
+                CreditLines.Add(Convert.ToDouble(EntryLines[i + 1]));
+                CreditsFormatted.Add(Convert.ToDouble(EntryLines[i + 1]).ToString("N2"));
+                string temp = Account.GetAccountNameFromAccountNumber(EntryLines[i]).Result;
+                CreditAccountNames.Add(temp);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+}
+

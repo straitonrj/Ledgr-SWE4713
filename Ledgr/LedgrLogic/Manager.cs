@@ -1066,39 +1066,37 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
     public static double GetAccountBalance(List<string> entries, char normalSide)
     {
         double balance = 0.00;
-        
-            for (int i = 0; i < ((entries.Count / 2) - 1); i++)
+        Console.WriteLine(normalSide);
+        for (int i = 0; i < (entries.Count); i += 2)
+        {
+            if (normalSide == 'R')
             {
-                for (int j = 0; j < 2; j++)
+                if (entries[i].Equals("Debit"))
                 {
-                    if (normalSide == 'R')
-                    {
-                        if (entries[j].Equals("Debit"))
-                        {
-                            j++;
-                            balance -= double.Parse(entries[j]);
-                        }
-                        else
-                        {
-                            j++;
-                            balance += double.Parse(entries[j]);
-                        }
-                    }
-                    else
-                    {
-                        if (entries[j].Equals("Debit"))
-                        {
-                            j++;
-                            balance -= double.Parse(entries[j]);
-                        }
-                        else
-                        {
-                            j++;
-                            balance += double.Parse(entries[j]);
-                        }
-                    }
+                    balance -= double.Parse(entries[i + 1]);
+                    Console.WriteLine("r1");
+                }
+                else
+                {
+                    balance += double.Parse(entries[i + 1]);
+                    Console.WriteLine("r2");
                 }
             }
+            else
+            {
+                if (entries[i].Equals("Debit"))
+                {
+                    balance += double.Parse(entries[i + 1]);
+                    Console.WriteLine("l1");
+                }
+                else
+                {
+                    balance -= double.Parse(entries[i + 1]);
+                    Console.WriteLine("l2");
+                }
+            }
+        }
+
         return balance;
     }
 
@@ -1139,23 +1137,28 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             {
                 while (reader.Read())
                 {
+                    
                     List<string> returnedEntries = new List<string>();
-                    balanceSheet.Add(reader.GetString(0));
-                    char normalSide = reader.GetChar(2);
-                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, reader.GetInt32(1));
-                    List<string> temp = new List<string>();
-
-                    //creating a list containing only DebitCredit and Amount to get the total
-                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    if (!balanceSheet.Contains(reader.GetString(0)))
                     {
-                        for (int k = 4; k < 6; k++)
-                        {
-                            temp.Add(relevantEntries[k]);
-                        }
-                    }
+                        balanceSheet.Add(reader.GetString(0));
+                        char normalSide = reader.GetChar(2);
+                        List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, reader.GetInt32(1));
+                        List<string> temp = new List<string>();
 
-                    double balance = GetAccountBalance(temp, normalSide);
-                    balanceSheet.Add("" + balance);
+                        //creating a list containing only DebitCredit and Amount to get the total
+                        for (int j = 0; j < relevantEntries.Count; j += 6)
+                        {
+                            for (int k = j + 4; k < j + 6; k++)
+                            {
+                                temp.Add(relevantEntries[k]);
+                                Console.WriteLine(relevantEntries[k]);
+                            }
+                        }
+
+                        double balance = GetAccountBalance(temp, normalSide);
+                        balanceSheet.Add("" + balance);
+                    }
                 }
             }
         }
@@ -1751,5 +1754,136 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             throw;
         }
         return entries;
+    }
+
+    public static async Task<List<string>> ViewJournalEntry(string EntryID)
+    {
+        List<string> EntryLines = new List<string>();
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            var sql = "Select * FROM JournalEntryDetails WHERE JournalEntryID = @ID";
+
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@ID", EntryID);
+            connection.Open();
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    EntryLines.Add(reader.GetString(1));
+                    EntryLines.Add(reader.GetString(2));
+                    EntryLines.Add(reader.GetString(4));
+                }
+            }
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        return EntryLines;
+
+    }
+    
+    // Kind of a cop-out method for viewing journal entries
+    public static string GetJournalEntryComment(string EntryID)
+    {
+        string comment = string.Empty;
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var sql = "Select * FROM JournalEntry WHERE ID = @ID";
+
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@ID", EntryID);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    comment = reader.GetString(3);
+                }
+            }
+
+            connection.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        return comment;
+    }
+
+    public static async Task<string> GetJournalIDFromEntryLine(string EntryLineID)
+    {
+        string ID = string.Empty;
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var sql = "Select * FROM JournalEntryDetails WHERE ID = @ID";
+
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@ID", EntryLineID);
+            Console.WriteLine(EntryLineID);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ID = reader.GetString(3);
+                    Console.WriteLine(ID);
+                }
+            }
+            await connection.CloseAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        return ID;
+        
+    }
+    
+    // I have a problem
+    public static async Task<string> GetDateFromJournalEntry(string EntryLineID)
+    {
+        string ID = string.Empty;
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
+            connection.Open();
+
+            var sql = "Select * FROM JournalEntryDetails WHERE ID = @ID";
+
+            var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@ID", EntryLineID);
+            Console.WriteLine(EntryLineID);
+
+            using var reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ID = reader.GetString(1);
+                    Console.WriteLine(ID);
+                }
+            }
+            await connection.CloseAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        return ID;
+        
     }
 }

@@ -180,7 +180,7 @@
                         {
                             <td>@LedgerListDebits[index + 3]</td>
                         }
-                        <td>JE-@LedgerListDebits[index + 6]</td>
+                        <td><a @onclick="() => Nav.ViewJournalEntry(Username, LedgerListDebits[index + 6])" href="#">JE-@LedgerListDebits[index + 6]</a></td>
                         @if (LedgerListDebits[index + 4] == "Debit")
                         {
                             <td style="text-align: right">@LedgerListDebits[index + 5]</td>
@@ -208,7 +208,7 @@
                         {
                             <td>@LedgerListCredits[index + 3]</td>
                         }
-                        <td>JE-@LedgerListCredits[index + 6]</td>
+                        <td><a @onclick="() => Nav.ViewJournalEntry(Username, LedgerListDebits[index + 6])" href="#">JE-@LedgerListCredits[index + 6]</a></td>
                         @if (LedgerListCredits[index + 4] == "Debit")
                         {
                             <td style="text-align: right">@LedgerListCredits[index + 5]</td>

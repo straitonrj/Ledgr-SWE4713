@@ -143,7 +143,8 @@
             <tr>
               <th>Account No.</th>
               <th>Account Name</th>
-              <th class="right">Balance</th>
+              <th class="right">Debit</th>
+              <th class="right">Credit</th>
             </tr>
             </thead>
             <tbody id="tbBody">
@@ -154,39 +155,24 @@
               <tr>
                 <td>@AccountNumbers[index / 2]</td>
                 <td>@TB[index]</td>
-                <td>@TB[index + 1]</td>
+                @if (NormalSides[index / 2] == "L")
+                {
+                  <td class="right">@TB[index + 1]</td>
+                  <td></td>
+                }
+                @if (NormalSides[index / 2] == "R")
+                {
+                  <td></td>
+                  <td class="right">@TB[index + 1]</td>
+                }
               </tr>
             }
-            <tr>
-              <td>1010</td>
-              <td>Cash</td>
-              <td class="right">$12,500.00</td>
-              <td class="right">—</td>
-            </tr>
-            <tr>
-              <td>1200</td>
-              <td>Accounts Receivable</td>
-              <td class="right">$4,800.00</td>
-              <td class="right">—</td>
-            </tr>
-            <tr>
-              <td>2000</td>
-              <td>Accounts Payable</td>
-              <td class="right">—</td>
-              <td class="right">$6,300.00</td>
-            </tr>
-            <tr>
-              <td>3000</td>
-              <td>Owner’s Equity</td>
-              <td class="right">—</td>
-              <td class="right">$11,000.00</td>
-            </tr>
             </tbody>
             <tfoot>
             <tr class="report-totals">
-              <th colspan="2">Totals</th>
-              <td class="right" id="tbTotalDebit">$17,300.00</td>
-              <td class="right" id="tbTotalCredit">$17,300.00</td>
+              <th colspan="2">Total</th>
+              <td class="right" id="tbTotalDebit">$@TotalDebit</td>
+              <td class="right" id="tbTotalDebit">$@TotalCredit</td>
             </tr>
             </tfoot>
           </table>
@@ -227,10 +213,15 @@
   public string ReportDate = DateTime.Today.ToString("d");
 
   public string toDate = DateTime.Today.ToString("yyyy-MM-dd");
-  public string fromDate = DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd");
+  public string fromDate = DateTime.Today.AddMonths(-5).ToString("yyyy-MM-dd");
+  public string Total = "0";
+  public string TotalDebit = "0";
+  public string TotalCredit = "0";
   public List<string> TB = new List<string>();
   public List<string> AccountNumbers = new List<string>();
+  public List<string> NormalSides = new List<string>();
 
+  
   protected override async Task OnParametersSetAsync()
   {
     Role = User.GetUserFromUserName(Username).Result.GetRole();
@@ -239,9 +230,24 @@
     TB = Manager.GetTrialBalance(fromDate, toDate);
     for (int i = 0; i < TB.Count; i += 2)
     {
+      TB[i + 1] = Convert.ToDouble(TB[i + 1]).ToString("N2");
+      Total = (Convert.ToDouble(Total) + Convert.ToDouble(TB[i + 1])).ToString("N2");
       AccountNumbers.Add(Account.GetAccountNumberFromAccountName(TB[i]).Result);
-      //Console.WriteLine(Account.GetAccountNumberFromAccountName(TB[i]).Result);
-      //Console.WriteLine(TB[i+1]);
+    }
+    foreach (string num in AccountNumbers)
+    {
+      NormalSides.Add(Account.GetAccountFromAccountNumber(Convert.ToInt32(num)).Result[3]);
+    }
+    for (int i = 0; i < TB.Count; i += 2)
+    {
+     if (NormalSides[i / 2] == "L")
+     {
+       TotalDebit = (Convert.ToDouble(TotalDebit) + Convert.ToDouble(TB[i + 1])).ToString("N2");
+     }
+     else
+     {
+       TotalCredit = (Convert.ToDouble(TotalCredit) + Convert.ToDouble(TB[i + 1])).ToString("N2");
+     }
     }
   }
 
