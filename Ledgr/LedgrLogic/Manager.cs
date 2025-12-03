@@ -1015,7 +1015,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
         {
             //var sql = "Select Acct.Name, JED.Amount, JED.DebitCredit, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Revenue'  AND JE.Date BETWEEN '2025-10-01' AND '2025-11-03' OR Acct.Category = 'Expense'  AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.Category DESC, Acct.\"Order\" ASC";
             var sql =
-                "SELECT Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Name = 'Revenue' AND JE.Date BETWEEN @START AND @LAST OR Acct.Name = 'Expense' AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.\"Order\" ASC";
+                "SELECT Acct.Number, Acct.NormalSide FROM JournalEntry AS JE INNER JOIN JournalEntryDetails AS JED ON JE.ID = JED.JournalEntryID INNER JOIN Account AS Acct ON JED.AccountNumber = Acct.Number WHERE Acct.Category = 'Revenue' AND JE.Date BETWEEN @START AND @LAST OR Acct.Category = 'Expense' AND JE.Date BETWEEN @START AND @LAST ORDER BY Acct.\"Order\" ASC";
             using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
             connection.Open();
             
@@ -1037,11 +1037,12 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                         List<string> temp = new List<string>();
                         
                         //creating a list containing only DebitCredit and Amount to get the total
-                        for (int j = 0; j < relevantEntries.Count / 6; j++)
+                        for (int j = 0; j < relevantEntries.Count; j += 6)
                         {
-                            for (int k = 4; k < 6; k++)
+                            for (int k = j + 4; k < j + 6; k++)
                             {
                                 temp.Add(relevantEntries[k]);
+                                Console.WriteLine(relevantEntries[k]);
                             }
                         }
 
@@ -1050,7 +1051,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 }
             }
             connection.Close();
-            
             
         }
         catch (Exception e)
@@ -1220,13 +1220,17 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             //adds revenue and expenses
             List<string> temp = GetIncomeStatement(fromDate, toDate);
-            for (int i = 0; i < temp.Count/2; i++)
+            Console.WriteLine("Hello from GetTrialBalance");
+            foreach (var element in temp)
             {
-                for (int j = 0; j < 2; j++)
-                {
-                    trialBalance.Add(temp[j]);
-                }
+                Console.WriteLine("Trial Balance Income Statement: " + element);
             }
+            
+            for (int i = 0; i < temp.Count; i++)
+            {
+                trialBalance.Add(temp[i]);
+            }
+            
         }
         catch (Exception e)
         {

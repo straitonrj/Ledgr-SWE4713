@@ -869,10 +869,14 @@ public class User
              using var command = new SqliteCommand(sql, connection);
              command.Parameters.AddWithValue("@USERID", UserID);
              using var reader = command.ExecuteReader();
-             if (reader.HasRows)
+             while (reader.Read())
              {
-                 path = reader.GetString(0);
+                 if (reader.HasRows)
+                 {
+                     path = reader.GetString(0);
+                 }
              }
+
              connection.Close();
          }
          catch (Exception e)
@@ -898,18 +902,24 @@ public class User
 
              using var assetsCommand = new SqliteCommand(assetsSql, connection);
              using var assetsReader = assetsCommand.ExecuteReader();
-             if (assetsReader.HasRows)
+             while (assetsReader.Read())
              {
-                 assets = assetsReader.GetDouble(0);
+                 if (assetsReader.HasRows)
+                 {
+                     assets = assetsReader.GetDouble(0);
+                 }
              }
 
              double liabilities = 0;
 
              using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
              using var liaReader = liaCommand.ExecuteReader();
-             if (liaReader.HasRows)
+             while (liaReader.Read())
              {
-                 liabilities = liaReader.GetDouble(0);
+                 if (liaReader.HasRows)
+                 {
+                     liabilities = liaReader.GetDouble(0);
+                 }
              }
              
              connection.Close();
@@ -938,18 +948,24 @@ public class User
 
              using var assetsCommand = new SqliteCommand(assetsSql, connection);
              using var assetsReader = assetsCommand.ExecuteReader();
-             if (assetsReader.HasRows)
+             while (assetsReader.Read())
              {
-                 assets = assetsReader.GetDouble(0);
+                 if (assetsReader.HasRows)
+                 {
+                     assets = assetsReader.GetDouble(0);
+                 }
              }
 
              double liabilities = 0;
 
              using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
              using var liaReader = liaCommand.ExecuteReader();
-             if (liaReader.HasRows)
+             while (liaReader.Read())
              {
-                 liabilities = liaReader.GetDouble(0);
+                 if (liaReader.HasRows)
+                 {
+                     liabilities = liaReader.GetDouble(0);
+                 }
              }
              
              connection.Close();
@@ -977,20 +993,26 @@ public class User
 
              using var assetsCommand = new SqliteCommand(assetsSql, connection);
              using var assetsReader = assetsCommand.ExecuteReader();
-             if (assetsReader.HasRows)
+             while (assetsReader.Read())
              {
-                 assets = assetsReader.GetDouble(0);
+                 if (assetsReader.HasRows)
+                 {
+                     assets = assetsReader.GetDouble(0);
+                 }   
              }
 
              double liabilities = 0;
 
              using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
              using var liaReader = liaCommand.ExecuteReader();
-             if (liaReader.HasRows)
+             while (liaReader.Read())
              {
-                 liabilities = liaReader.GetDouble(0);
+                 if (liaReader.HasRows)
+                 {
+                     liabilities = liaReader.GetDouble(0);
+                 }
              }
-             
+
              connection.Close();
 
              //ratios should be percentages
@@ -1007,7 +1029,7 @@ public class User
      {
          try
          {
-             var equitySql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Equity'";
+             var equitySql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Capital'";
              var liabilitiesSql = "SELECT SUM(Balance) FROM Account WHERE Account.Category = 'Liability'";
              
              using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
@@ -1017,20 +1039,26 @@ public class User
 
              using var equityCommand = new SqliteCommand(equitySql, connection);
              using var equityReader = equityCommand.ExecuteReader();
-             if (equityReader.HasRows)
+             while (equityReader.Read())
              {
-                 equity = equityReader.GetDouble(0);
+                 if (equityReader.HasRows)
+                 {
+                     equity = equityReader.GetDouble(0);
+                 }
              }
 
              double liabilities = 0;
 
              using var liaCommand = new SqliteCommand(liabilitiesSql, connection);
              using var liaReader = liaCommand.ExecuteReader();
-             if (liaReader.HasRows)
+             while (liaReader.Read())
              {
-                 liabilities = liaReader.GetDouble(0);
+                 if (liaReader.HasRows)
+                 {
+                     liabilities = liaReader.GetDouble(0);
+                 }
              }
-             
+
              connection.Close();
 
              //ratios should be percentages
@@ -1057,18 +1085,24 @@ public class User
 
              using var revCommand = new SqliteCommand(revenueSql, connection);
              using var revReader = revCommand.ExecuteReader();
-             if (revReader.HasRows)
+             while (revReader.Read())
              {
-                 revenue = revReader.GetDouble(0);
+                 if (revReader.HasRows)
+                 {
+                     revenue = revReader.GetDouble(0);
+                 }
              }
 
              double expense = 0;
              
              using var expCommand = new SqliteCommand(expenseSql, connection);
-             using var expReader = revCommand.ExecuteReader();
-             if (expReader.HasRows)
+             using var expReader = expCommand.ExecuteReader();
+             while (expReader.Read())
              {
-                 expense = expReader.GetDouble(0);
+                 if (expReader.HasRows)
+                 {
+                     expense = expReader.GetDouble(0);
+                 }
              }
 
              return revenue - expense;
@@ -1094,11 +1128,13 @@ public class User
 
              using var salesCommand = new SqliteCommand(salesSql, connection);
              using var salesReader = salesCommand.ExecuteReader();
-             if (salesReader.HasRows)
+             while (salesReader.Read())
              {
-                 sales = salesReader.GetDouble(0);
+                 if (salesReader.HasRows)
+                 {
+                     sales = salesReader.GetDouble(0);
+                 }
              }
-
              return (netIncome / sales) * 100;
          }
          catch (Exception e)
@@ -1123,29 +1159,37 @@ public class User
 
              using var assetCommand = new SqliteCommand(assetSql, connection);
              using var assetReader = assetCommand.ExecuteReader();
-             if (assetReader.HasRows)
+             while (assetReader.Read())
              {
-                 assets = assetReader.GetDouble(0);
+                 if (assetReader.HasRows)
+                 {
+                     assets = assetReader.GetDouble(0);
+                 }
              }
-             
+
              double cash = 0;
 
              using var cashCommand = new SqliteCommand(cashSql, connection);
-             using var cashReader = assetCommand.ExecuteReader();
-             if (cashReader.HasRows)
+             using var cashReader = cashCommand.ExecuteReader();
+             while (cashReader.Read())
              {
-                 assets = cashReader.GetDouble(0);
+                 if (cashReader.HasRows)
+                 {
+                     cash = cashReader.GetDouble(0);
+                 }
              }
              
              double liabilities = 0;
 
              using var liaCommand = new SqliteCommand(liaSql, connection);
              using var liaReader = liaCommand.ExecuteReader();
-             if (liaReader.HasRows)
+             while (liaReader.Read())
              {
-                 liabilities = cashReader.GetDouble(0);
+                 if (liaReader.HasRows)
+                 {
+                     liabilities = liaReader.GetDouble(0);
+                 }
              }
-
              return ((assets + cash) / liabilities) * 100;
          }
          catch (Exception e)
@@ -1168,14 +1212,16 @@ public class User
 
              using var assetCommand = new SqliteCommand(assetSql, connection);
              using var assetReader = assetCommand.ExecuteReader();
-             if (assetReader.HasRows)
+             while (assetReader.Read())
              {
-                 avgAsset = assetReader.GetDouble(0);
+                 if (assetReader.HasRows)
+                 {
+                     avgAsset = assetReader.GetDouble(0);
+                 }
              }
 
              double netIncome = GetNetIncome();
-
-             return netIncome/avgAsset;
+             return (netIncome/avgAsset) * 100;
          }
          catch (Exception e)
          {
@@ -1191,20 +1237,22 @@ public class User
              using var connection = new SqliteConnection($"Data Source=" + Database.GetDatabasePath());
              connection.Open();
 
-             var equitySql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Equity'";
+             var equitySql = "SELECT SUM(Balance) FROM Account WHERE Category = 'Capital'";
 
              double avgEquity = 0;
 
              using var equityCommand = new SqliteCommand(equitySql, connection);
-             using var assetReader = equityCommand.ExecuteReader();
-             if (assetReader.HasRows)
+             using var equityReader = equityCommand.ExecuteReader();
+             while (equityReader.Read())
              {
-                 avgEquity = assetReader.GetDouble(0);
+                 if (equityReader.HasRows)
+                 {
+                     avgEquity = equityReader.GetDouble(0);
+                 }
              }
 
              double netIncome = GetNetIncome();
-
-             return netIncome/avgEquity;
+             return (netIncome/avgEquity) * 100;
          }
          catch (Exception e)
          {
