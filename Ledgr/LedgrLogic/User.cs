@@ -884,7 +884,7 @@ public class User
          return path;
      }
 
-     public double GetCurrentRatio()
+     public static double GetCurrentRatio()
      {
          try
          {
@@ -924,7 +924,7 @@ public class User
          }
      }
      
-     public double GetWorkingCapital()
+     public static double GetWorkingCapital()
      {
          try
          {
@@ -963,7 +963,7 @@ public class User
          }
      }
      
-     public double GetDebtRatio()
+     public static double GetDebtRatio()
      {
          try
          {
@@ -1003,7 +1003,7 @@ public class User
          }
      }
      
-     public double GetDtE()
+     public static double GetDtE()
      {
          try
          {
