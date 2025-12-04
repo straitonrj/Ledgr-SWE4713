@@ -1134,7 +1134,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             {
                 while (reader.Read())
                 {
-                    
                     List<string> returnedEntries = new List<string>();
                     if (!balanceSheet.Contains(reader.GetString(0)))
                     {
@@ -1219,7 +1218,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             for (int i = 0; i < temp.Count; i++)
             {
-                //trialBalance.Add(temp[i]);
+                trialBalance.Add(temp[i]);
             }
         }
         catch (Exception e)

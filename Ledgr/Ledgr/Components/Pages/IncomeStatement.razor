@@ -154,6 +154,19 @@
             <tr class="section-row">
               <td colspan="2"><strong>Revenues</strong></td>
             </tr>
+            @for (int i = 0; i < RevData.Count; i += 2)
+            {
+              int index = i;
+              <tr>
+                <td>@RevData[index]</td>
+                <td class="right">$@RevData[index + 1]</td>
+              </tr>
+            }
+            <tr class="subtotal-row">
+              <td><strong>Total Revenues</strong></td>
+              <td class="right" id="isTotalRevenues">$@RevTotal</td>
+            </tr>
+            <!--
             <tr>
               <td>Service Revenue</td>
               <td class="right">$18,000.00</td>
@@ -166,11 +179,25 @@
               <td><strong>Total Revenues</strong></td>
               <td class="right" id="isTotalRevenues">$22,500.00</td>
             </tr>
+            -->
 
             <!-- Expenses section -->
             <tr class="section-row">
               <td colspan="2"><strong>Expenses</strong></td>
             </tr>
+            @for (int i = 0; i < ExpData.Count; i += 2)
+            {
+            int index = i;
+            <tr>
+              <td>@ExpData[index]</td>
+              <td class="right">$@ExpData[index + 1]</td>
+            </tr>
+            }
+            <tr class="subtotal-row">
+              <td><strong>Total Expenses</strong></td>
+              <td class="right" id="isTotalRevenues">$@ExpTotal</td>
+            </tr>
+            <!--
             <tr>
               <td>Salaries Expense</td>
               <td class="right">$9,000.00</td>
@@ -191,11 +218,13 @@
               <td><strong>Total Expenses</strong></td>
               <td class="right" id="isTotalExpenses">$12,750.00</td>
             </tr>
+            -->
+
             </tbody>
             <tfoot>
             <tr class="report-totals">
               <th>Net Income</th>
-              <td class="right" id="isNetIncome">$9,750.00</td>
+              <td class="right" id="isNetIncome">$@Total</td>
             </tr>
             </tfoot>
           </table>
@@ -234,12 +263,45 @@
   public string Role { get; set; }
   public string CalendarDate = DateTime.Today.ToString("M");
   public string ReportDate = DateTime.Today.ToString("d");
+  
+  // Report Data
+  public string toDate = DateTime.Today.ToString("yyyy-MM-dd");
+  public string fromDate = DateTime.Today.AddMonths(-5).ToString("yyyy-MM-dd");
+  public List<string> IS { get; set; } = new List<string>();
 
+  public List<string> RevData { get; set; } = new List<string>();
+  public List<string> ExpData { get; set; } = new List<string>();
 
-
+  public string Total { get; set; } = "0";
+  public string RevTotal { get; set; } = "0";
+  public string ExpTotal { get; set; } = "0";
+  
   protected override async Task OnParametersSetAsync()
   {
     Role = User.GetUserFromUserName(Username).Result.GetRole();
+
+    IS = Manager.GetIncomeStatement(fromDate, toDate);
+
+    for (int i = 0; i < IS.Count; i += 2)
+    {
+      if (IS[i].Contains("Revenue"))
+      {
+        RevData.Add(IS[i]);
+        RevData.Add(Convert.ToDouble(IS[i + 1]).ToString("N2"));
+        RevTotal = Convert.ToString(Convert.ToDouble(RevTotal) + Convert.ToDouble(IS[i + 1]));
+      }
+      if (IS[i].Contains("Expense"))
+      {
+        ExpData.Add(IS[i]);
+        ExpData.Add(IS[i + 1]);
+        ExpTotal = Convert.ToString(Convert.ToDouble(ExpTotal) + Convert.ToDouble(IS[i + 1]));
+      }
+    }
+    
+    // Convert the totals into formatted variants
+    Total = (Convert.ToDouble(RevTotal) - Convert.ToDouble(ExpTotal)).ToString("N2");
+    RevTotal = Convert.ToDouble(RevTotal).ToString("N2");
+    ExpTotal = Convert.ToDouble(ExpTotal).ToString("N2");
     StateHasChanged();
   }
 
