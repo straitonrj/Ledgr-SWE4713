@@ -129,8 +129,8 @@
           <table class="table report-table">
             <thead>
             <tr>
-              <th>Category</th>
               <th>Account</th>
+              <th></th>
               <th class="right">Amount</th>
             </tr>
             </thead>
@@ -139,68 +139,62 @@
             <tr class="section-row">
               <td colspan="3"><strong>Assets</strong></td>
             </tr>
-            <tr>
-              <td>Current Assets</td>
-              <td>Cash</td>
-              <td class="right">$12,500.00</td>
-            </tr>
-            <tr>
-              <td>Current Assets</td>
-              <td>Accounts Receivable</td>
-              <td class="right">$4,800.00</td>
-            </tr>
-            <tr>
-              <td>Current Assets</td>
-              <td>Supplies</td>
-              <td class="right">$1,200.00</td>
-            </tr>
-            <tr>
-              <td>Long-term Assets</td>
-              <td>Equipment</td>
-              <td class="right">$15,000.00</td>
-            </tr>
+            @for (int i = 0; i < Assets.Count; i += 2)
+            {
+              int index = i;
+              <tr>
+                <td>@Assets[index]</td>
+                <td></td>
+                <td class="right">$@Assets[index + 1]</td>
+              </tr>
+            }
             <tr class="subtotal-row">
               <td colspan="2"><strong>Total Assets</strong></td>
-              <td class="right" id="bsTotalAssets">$33,500.00</td>
+              <td class="right" id="bsTotalAssets">$@aTotal</td>
             </tr>
 
             <!-- Liabilities -->
             <tr class="section-row">
               <td colspan="3"><strong>Liabilities</strong></td>
             </tr>
+            @for (int i = 0; i < Liability.Count; i += 2)
+            {
+            int index = i;
             <tr>
-              <td>Current Liabilities</td>
-              <td>Accounts Payable</td>
-              <td class="right">$6,300.00</td>
+              <td>@Liability[index]</td>
+              <td></td>
+              <td class="right">$@Liability[index + 1]</td>
             </tr>
-            <tr>
-              <td>Long-term Liabilities</td>
-              <td>Notes Payable</td>
-              <td class="right">$5,200.00</td>
-            </tr>
+            }
+            
             <tr class="subtotal-row">
               <td colspan="2"><strong>Total Liabilities</strong></td>
-              <td class="right" id="bsTotalLiabilities">$11,500.00</td>
+              <td class="right" id="bsTotalLiabilities">$@lTotal</td>
             </tr>
 
+            
             <!-- Equity -->
             <tr class="section-row">
               <td colspan="3"><strong>Equity</strong></td>
             </tr>
+            @for (int i = 0; i < Equity.Count; i += 2)
+            {
+            int index = i;
             <tr>
-              <td>Equity</td>
-              <td>Owner’s Capital</td>
-              <td class="right">$22,000.00</td>
+              <td>@Equity[index]</td>
+              <td></td>
+              <td class="right">$@Equity[index + 1]</td>
             </tr>
+            }
             <tr class="subtotal-row">
               <td colspan="2"><strong>Total Equity</strong></td>
-              <td class="right" id="bsTotalEquity">$22,000.00</td>
+              <td class="right" id="bsTotalEquity">$@eTotal</td>
             </tr>
             </tbody>
             <tfoot>
             <tr class="report-totals">
               <th colspan="2">Total Liabilities and Equity</th>
-              <td class="right" id="bsTotalLiabEquity">$33,500.00</td>
+              <td class="right" id="bsTotalLiabEquity">$@leTotal</td>
             </tr>
             </tfoot>
           </table>
@@ -239,7 +233,63 @@
   public string CalendarDate = DateTime.Today.ToString("M");
   public string ReportDate = DateTime.Today.ToString("d");
   
+  public string Role { get; set; } = string.Empty;
+  // Report Data
+  public string toDate = DateTime.Today.ToString("yyyy-MM-dd");
+  public string fromDate = DateTime.Today.AddMonths(-5).ToString("yyyy-MM-dd");
   
+  public List<string> Assets = new List<string>();
+  public List<string> Liability = new List<string>();
+  public List<string> Equity = new List<string>();
+
+  public string aTotal { get; set; } = "0";
+  public string lTotal { get; set; } = "0";
+  public string eTotal { get; set; } = "0";
+  public string leTotal { get; set; } = "0";
+  public string Total { get; set; } = "0";
+  
+  protected override async Task OnParametersSetAsync()
+  {
+    Role = User.GetUserFromUserName(Username).Result.GetRole();
+
+    Assets = Manager.GetBalanceSheetCategory(fromDate, toDate, "Asset");
+    Liability = Manager.GetBalanceSheetCategory(fromDate, toDate, "Liability");
+    Equity = Manager.GetBalanceSheetCategory(fromDate, toDate, "Equity");
+
+    for (int i = 0; i < Equity.Count; i += 1)
+    {
+      Console.WriteLine(Equity[i]);
+    }
+
+    // Process / Format Assets
+    for (int i = 0; i < Assets.Count; i += 2)
+    {
+      aTotal = Convert.ToString((Convert.ToDouble(aTotal) + Convert.ToDouble(Assets[i + 1])));
+      Assets[i + 1] = Convert.ToDouble(Assets[i + 1]).ToString("N2");
+    }
+    
+    // same but liability
+    for (int i = 0; i < Liability.Count; i += 2)
+    {
+      lTotal = System.Convert.ToString(Convert.ToDouble(aTotal) + Convert.ToDouble(Liability[i + 1]));
+      Liability[i + 1] = Convert.ToDouble(Liability[i + 1]).ToString("N2");
+    }
+    
+    // you get the idea
+    for (int i = 0; i < Equity.Count; i += 2)
+    {
+      eTotal = System.Convert.ToString(Convert.ToDouble(eTotal) + Convert.ToDouble(Equity[i + 1]));
+      Equity[i + 1] = Convert.ToDouble(Equity[i + 1]).ToString("N2");
+    }
+
+    leTotal = (Convert.ToDouble(lTotal) + Convert.ToDouble(eTotal)).ToString("N2");
+    Total = (Convert.ToDouble(aTotal) + Convert.ToDouble(lTotal) + Convert.ToDouble(eTotal)).ToString("N2");
+    aTotal = Convert.ToDouble(aTotal).ToString("N2");
+    lTotal = Convert.ToDouble(lTotal).ToString("N2");
+    eTotal = Convert.ToDouble(eTotal).ToString("N2");
+    
+    StateHasChanged();
+  }
 
 
 }

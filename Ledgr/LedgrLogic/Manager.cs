@@ -1243,7 +1243,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             //getting rev balance for calculating net income
             var revCommand = new SqliteCommand(revSql, connection);
-            revCommand.Parameters.AddWithValue("@START", fromDate);
+            revCommand.Parameters.AddWithValue("@FIRST", fromDate);
             revCommand.Parameters.AddWithValue("@LAST", toDate);
 
             revCommand.ExecuteNonQuery();
@@ -1274,13 +1274,12 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             //getting exp balance for calculating net income
             var expCommand = new SqliteCommand(expSql, connection);
-            expCommand.Parameters.AddWithValue("@START", fromDate);
+            expCommand.Parameters.AddWithValue("@FIRST", fromDate);
             expCommand.Parameters.AddWithValue("@LAST", toDate);
 
-            revCommand.ExecuteNonQuery();
             double expBalance = 0;
 
-            using var expReader = revCommand.ExecuteReader();
+            using var expReader = expCommand.ExecuteReader();
             if (expReader.HasRows)
             {
                 while (expReader.Read())

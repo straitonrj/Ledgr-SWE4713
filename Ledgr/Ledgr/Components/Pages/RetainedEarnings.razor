@@ -209,12 +209,22 @@
   public string Role { get; set; }
   public string CalendarDate = DateTime.Today.ToString("M");
   public string ReportDate = DateTime.Today.ToString("d");
+  
+  // Report Data
+  public string toDate = DateTime.Today.ToString("yyyy-MM-dd");
+  public string fromDate = DateTime.Today.AddMonths(-5).ToString("yyyy-MM-dd");
 
-
+  public List<string> RE { get; set; } = new List<string>();
 
   protected override async Task OnParametersSetAsync()
   {
     Role = User.GetUserFromUserName(Username).Result.GetRole();
+
+    RE = Manager.GetRetainedEarnings(fromDate, toDate);
+    foreach (string data in RE)
+    {
+      Console.WriteLine(data);
+    }
     StateHasChanged();
   }
 
