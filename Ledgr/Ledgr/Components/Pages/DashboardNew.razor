@@ -116,55 +116,223 @@
       <!-- Ratio summary cards (color coded) -->
       <div class="ratio-cards">
         <!-- Example Liquidity Ratios -->
-        <article class="ratio-card ratio--good" data-ratio="current" title="Current Assets ÷ Current Liabilities">
+        @if (Convert.ToDouble(CurrentRatioNum) > 3)
+        {
+          <article class="ratio-card ratio--good" data-ratio="current" title="Current Assets ÷ Current Liabilities">
+            <h3 class="ratio-card__name">Current Ratio</h3>
+            <p class="ratio-card__value" id="ratio-current">@CurrentRatio</p>
+            <p class="ratio-card__formula">Current Assets ÷ Current Liabilities</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(CurrentRatioNum) < 3 && Convert.ToDouble(CurrentRatioNum) > 1.5)
+        {
+          <article class="ratio-card ratio--warning" data-ratio="current" title="Current Assets ÷ Current Liabilities">
+            <h3 class="ratio-card__name">Current Ratio</h3>
+            <p class="ratio-card__value" id="ratio-current">@CurrentRatio</p>
+            <p class="ratio-card__formula">Current Assets ÷ Current Liabilities</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(CurrentRatioNum) < 1.5)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="current" title="Current Assets ÷ Current Liabilities">
           <h3 class="ratio-card__name">Current Ratio</h3>
           <p class="ratio-card__value" id="ratio-current">@CurrentRatio</p>
           <p class="ratio-card__formula">Current Assets ÷ Current Liabilities</p>
         </article>
+        }
 
+        @if (Convert.ToInt32(QuickRatioNum) > 1)
+        {
+          <article class="ratio-card ratio--good" data-ratio="quick" title="(Current Assets − Inventory) ÷ Current Liabilities">
+            <h3 class="ratio-card__name">Quick Ratio</h3>
+            <p class="ratio-card__value" id="ratio-quick">@QuickRatio</p>
+            <p class="ratio-card__formula">(Current Assets − Inventory) ÷ Current Liabilities</p>
+          </article>
+        }
+
+        @if (Convert.ToInt32(QuickRatioNum) > .8 && Convert.ToInt32(QuickRatioNum) < 1)
+        {
         <article class="ratio-card ratio--warning" data-ratio="quick" title="(Current Assets − Inventory) ÷ Current Liabilities">
           <h3 class="ratio-card__name">Quick Ratio</h3>
           <p class="ratio-card__value" id="ratio-quick">@QuickRatio</p>
           <p class="ratio-card__formula">(Current Assets − Inventory) ÷ Current Liabilities</p>
         </article>
+        }
 
-        <article class="ratio-card ratio--good" data-ratio="working-capital" title="Current Assets − Current Liabilities">
+        @if (Convert.ToInt32(QuickRatioNum) < .8)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="quick" title="(Current Assets − Inventory) ÷ Current Liabilities">
+          <h3 class="ratio-card__name">Quick Ratio</h3>
+          <p class="ratio-card__value" id="ratio-quick">@QuickRatio</p>
+          <p class="ratio-card__formula">(Current Assets − Inventory) ÷ Current Liabilities</p>
+        </article>
+        }
+
+        @if (Convert.ToDouble(WorkingCapitalNum) > 0)
+        {
+          <article class="ratio-card ratio--good" data-ratio="working-capital" title="Current Assets − Current Liabilities">
+            <h3 class="ratio-card__name">Working Capital</h3>
+            <p class="ratio-card__value" id="ratio-working-capital">@WorkingCapital</p>
+            <p class="ratio-card__formula">Current Assets − Current Liabilities</p>
+          </article>
+        }
+        @if (Convert.ToDouble(WorkingCapitalNum) == 0)
+        {
+        <article class="ratio-card ratio--warning" data-ratio="working-capital" title="Current Assets − Current Liabilities">
           <h3 class="ratio-card__name">Working Capital</h3>
           <p class="ratio-card__value" id="ratio-working-capital">@WorkingCapital</p>
           <p class="ratio-card__formula">Current Assets − Current Liabilities</p>
         </article>
+        }
+        @if (Convert.ToDouble(WorkingCapitalNum) < 0)
+        {
+          <article class="ratio-card ratio--bad" data-ratio="working-capital" title="Current Assets − Current Liabilities">
+            <h3 class="ratio-card__name">Working Capital</h3>
+            <p class="ratio-card__value" id="ratio-working-capital">@WorkingCapital</p>
+            <p class="ratio-card__formula">Current Assets − Current Liabilities</p>
+          </article>
+        }
+
 
         <!-- Profitability -->
-        <article class="ratio-card ratio--good" data-ratio="net-margin" title="Net Income ÷ Net Sales">
+        @if (Convert.ToDouble(NetProfitMarginNum) > 20)
+        {
+          <article class="ratio-card ratio--good" data-ratio="net-margin" title="Net Income ÷ Net Sales">
+            <h3 class="ratio-card__name">Net Profit Margin</h3>
+            <p class="ratio-card__value" id="ratio-net-margin">@NetProfitMargin</p>
+            <p class="ratio-card__formula">Net Income ÷ Net Sales</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(NetProfitMarginNum) < 20 && Convert.ToDouble(NetProfitMarginNum) > 10)
+        {
+        <article class="ratio-card ratio--warning" data-ratio="net-margin" title="Net Income ÷ Net Sales">
           <h3 class="ratio-card__name">Net Profit Margin</h3>
           <p class="ratio-card__value" id="ratio-net-margin">@NetProfitMargin</p>
           <p class="ratio-card__formula">Net Income ÷ Net Sales</p>
         </article>
+        }
 
-        <article class="ratio-card ratio--good" data-ratio="roa" title="Net Income ÷ Average Total Assets">
+        @if (Convert.ToDouble(NetProfitMarginNum) < 10)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="net-margin" title="Net Income ÷ Net Sales">
+          <h3 class="ratio-card__name">Net Profit Margin</h3>
+          <p class="ratio-card__value" id="ratio-net-margin">@NetProfitMargin</p>
+          <p class="ratio-card__formula">Net Income ÷ Net Sales</p>
+        </article>
+        }
+
+        @if (Convert.ToDouble(RoANum) > 12)
+        {
+          <article class="ratio-card ratio--good" data-ratio="roa" title="Net Income ÷ Average Total Assets">
+            <h3 class="ratio-card__name">Return on Assets (ROA)</h3>
+            <p class="ratio-card__value" id="ratio-roa">@RoA</p>
+            <p class="ratio-card__formula">Net Income ÷ Average Total Assets</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(RoANum) < 12 && Convert.ToDouble(RoANum) > 6)
+        {
+        <article class="ratio-card ratio--warning" data-ratio="roa" title="Net Income ÷ Average Total Assets">
           <h3 class="ratio-card__name">Return on Assets (ROA)</h3>
           <p class="ratio-card__value" id="ratio-roa">@RoA</p>
           <p class="ratio-card__formula">Net Income ÷ Average Total Assets</p>
         </article>
+        }
 
-        <article class="ratio-card ratio--good" data-ratio="roe" title="Net Income ÷ Average Equity">
+        @if (Convert.ToDouble(RoANum) < 6)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="roa" title="Net Income ÷ Average Total Assets">
+          <h3 class="ratio-card__name">Return on Assets (ROA)</h3>
+          <p class="ratio-card__value" id="ratio-roa">@RoA</p>
+          <p class="ratio-card__formula">Net Income ÷ Average Total Assets</p>
+        </article>
+        }
+
+        @if (Convert.ToDouble(RoENum) > 20)
+        {
+          <article class="ratio-card ratio--good" data-ratio="roe" title="Net Income ÷ Average Equity">
+            <h3 class="ratio-card__name">Return on Equity (ROE)</h3>
+            <p class="ratio-card__value" id="ratio-roe">@RoE</p>
+            <p class="ratio-card__formula">Net Income ÷ Average Equity</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(RoENum) < 20 && Convert.ToDouble(RoENum) > 10)
+        {
+        <article class="ratio-card ratio--warning" data-ratio="roe" title="Net Income ÷ Average Equity">
           <h3 class="ratio-card__name">Return on Equity (ROE)</h3>
           <p class="ratio-card__value" id="ratio-roe">@RoE</p>
           <p class="ratio-card__formula">Net Income ÷ Average Equity</p>
         </article>
+        }
+
+        @if (Convert.ToDouble(RoENum) < 10)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="roe" title="Net Income ÷ Average Equity">
+          <h3 class="ratio-card__name">Return on Equity (ROE)</h3>
+          <p class="ratio-card__value" id="ratio-roe">@RoE</p>
+          <p class="ratio-card__formula">Net Income ÷ Average Equity</p>
+        </article>
+        }
+
 
         <!-- Solvency / Leverage -->
+        @if (Convert.ToDouble(DebtRatioNum) < 0.3)
+        {
+          <article class="ratio-card ratio--good" data-ratio="debt-ratio" title="Total Liabilities ÷ Total Assets">
+            <h3 class="ratio-card__name">Debt Ratio</h3>
+            <p class="ratio-card__value" id="ratio-debt-ratio">@DebtRatio</p>
+            <p class="ratio-card__formula">Total Liabilities ÷ Total Assets</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(DebtRatioNum) > 0.3 && Convert.ToDouble(DebtRatioNum) < 0.6)
+        {
         <article class="ratio-card ratio--warning" data-ratio="debt-ratio" title="Total Liabilities ÷ Total Assets">
           <h3 class="ratio-card__name">Debt Ratio</h3>
           <p class="ratio-card__value" id="ratio-debt-ratio">@DebtRatio</p>
           <p class="ratio-card__formula">Total Liabilities ÷ Total Assets</p>
         </article>
+        }
 
+        @if (Convert.ToDouble(DebtRatioNum) > 0.6)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="debt-ratio" title="Total Liabilities ÷ Total Assets">
+          <h3 class="ratio-card__name">Debt Ratio</h3>
+          <p class="ratio-card__value" id="ratio-debt-ratio">@DebtRatio</p>
+          <p class="ratio-card__formula">Total Liabilities ÷ Total Assets</p>
+        </article>
+        }
+
+        @if (Convert.ToDouble(DebtEquityNum) < 1)
+        {
+          <article class="ratio-card ratio--good" data-ratio="debt-to-equity" title="Total Liabilities ÷ Total Equity">
+            <h3 class="ratio-card__name">Debt-to-Equity</h3>
+            <p class="ratio-card__value" id="ratio-debt-equity">@DebtEquity</p>
+            <p class="ratio-card__formula">Total Liabilities ÷ Total Equity</p>
+          </article>
+        }
+
+        @if (Convert.ToDouble(DebtEquityNum) > 1 && Convert.ToDouble(DebtEquityNum) < 2)
+        {
         <article class="ratio-card ratio--warning" data-ratio="debt-to-equity" title="Total Liabilities ÷ Total Equity">
           <h3 class="ratio-card__name">Debt-to-Equity</h3>
           <p class="ratio-card__value" id="ratio-debt-equity">@DebtEquity</p>
           <p class="ratio-card__formula">Total Liabilities ÷ Total Equity</p>
         </article>
+        }
+
+        @if (Convert.ToDouble(DebtEquityNum) > 2)
+        {
+        <article class="ratio-card ratio--bad" data-ratio="debt-to-equity" title="Total Liabilities ÷ Total Equity">
+          <h3 class="ratio-card__name">Debt-to-Equity</h3>
+          <p class="ratio-card__value" id="ratio-debt-equity">@DebtEquity</p>
+          <p class="ratio-card__formula">Total Liabilities ÷ Total Equity</p>
+        </article>
+        }
       </div>
 
       <!-- Detailed table view -->
@@ -183,21 +351,58 @@
           <!-- Rows populated/updated via dashboard.js -->
           <tr>
             <td>Current Ratio</td>
-            <td id="ratio-current-val">--</td>
-            <td><span class="status-dot status-dot--good">Good</span></td>
+            <td id="ratio-current-val">@CurrentRatio</td>
+            @if (Convert.ToDouble(CurrentRatioNum) > 3){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(CurrentRatioNum) < 3 && Convert.ToDouble(CurrentRatioNum) > 1){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(CurrentRatioNum) < 1){<td><span class="status-dot status-dot--bad">Bad</span></td> }
             <td>Measures short-term liquidity and ability to pay current liabilities.</td>
           </tr>
           <tr>
             <td>Quick Ratio</td>
-            <td id="ratio-quick-val">--</td>
-            <td><span class="status-dot status-dot--warning">Warning</span></td>
+            <td id="ratio-quick-val">@QuickRatio</td>
+            @if (Convert.ToDouble(QuickRatioNum) > 1){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(QuickRatioNum) < 1 && Convert.ToDouble(QuickRatioNum) > .8){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(QuickRatioNum) < .8){<td><span class="status-dot status-dot--bad">Bad</span></td> }            
             <td>Liquidity excluding inventory; more conservative than current ratio.</td>
           </tr>
           <tr>
             <td>Net Profit Margin</td>
-            <td id="ratio-net-margin-val">--</td>
-            <td><span class="status-dot status-dot--good">Good</span></td>
-            <td>Shows how much profit is earned from each dollar of sales.</td>
+            <td id="ratio-net-margin-val">@NetProfitMargin</td>
+            @if (Convert.ToDouble(NetProfitMarginNum) > 20){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(NetProfitMarginNum) < 20 && Convert.ToDouble(NetProfitMarginNum) > 10){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(NetProfitMarginNum) < 10){<td><span class="status-dot status-dot--bad">Bad</span></td> }               <td>Shows how much profit is earned from each dollar of sales.</td>
+          </tr>
+          <tr>
+            <td>Return on Assets</td>
+            <td id="ratio-net-margin-val">@RoA</td>
+            @if (Convert.ToDouble(RoANum) > 12){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(RoANum) < 12 && Convert.ToDouble(RoANum) > 6){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(RoANum) < 6){<td><span class="status-dot status-dot--bad">Bad</span></td> }               
+            <td>Measures the efficiency of assets regarding profit generation.</td>
+          </tr>
+          <tr>
+            <td>Return on Equity</td>
+            <td id="ratio-net-margin-val">@RoE</td>
+            @if (Convert.ToDouble(RoENum) > 20){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(RoENum) < 20 && Convert.ToDouble(RoENum) > 10){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(RoENum) < 10){<td><span class="status-dot status-dot--bad">Bad</span></td> }
+            <td>Compares profit versus equity to evaluate profitability.</td>
+          </tr>
+          <tr>
+            <td>Debt Ratio</td>
+            <td id="ratio-net-margin-val">@DebtRatio</td>
+            @if (Convert.ToDouble(DebtRatioNum) < .3){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(DebtRatioNum) > .3 && Convert.ToDouble(DebtRatioNum) < .6){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(DebtRatioNum) > .6){<td><span class="status-dot status-dot--bad">Bad</span></td> }
+            <td>Evaluates the proportion of assets that are financed by debt.</td>
+          </tr>
+          <tr>
+            <td>Debt-to-Equity</td>
+            <td id="ratio-net-margin-val">@DebtEquity</td>
+            @if (Convert.ToDouble(DebtEquityNum) < 1){<td><span class="status-dot status-dot--good">Good</span></td> }
+            @if (Convert.ToDouble(DebtEquityNum) > 1 && Convert.ToDouble(DebtEquityNum) < 2){<td><span class="status-dot status-dot--warning">Warning</span></td> }
+            @if (Convert.ToDouble(DebtEquityNum) > 2){<td><span class="status-dot status-dot--bad">Bad</span></td> }
+            <td>Proportion of finances handled by debt versus equity.</td>
           </tr>
           </tbody>
         </table>
@@ -272,6 +477,15 @@
   public string RoE { get; set; }
   public string DebtRatio { get; set; }
   public string DebtEquity { get; set; }
+  
+  public double CurrentRatioNum { get; set; }
+  public double QuickRatioNum { get; set; }
+  public double WorkingCapitalNum { get; set; }
+  public double NetProfitMarginNum { get; set; }
+  public double RoANum { get; set; }
+  public double RoENum { get; set; }
+  public double DebtRatioNum { get; set; }
+  public double DebtEquityNum { get; set; } 
 
   public List<string> Statuses = new List<string>();
   
@@ -288,6 +502,16 @@
     DebtEquity = User.GetDtE().ToString("N2");
     CurrentRatio = User.GetCurrentRatio().ToString("N2");
     WorkingCapital = User.GetWorkingCapital().ToString("N2");
+
+    QuickRatioNum = User.GetQuickRatio();
+    NetProfitMarginNum = User.GetNetProfitMargin();
+    RoANum = User.GetRoA();
+    RoENum = User.GetRoE();
+
+    DebtRatioNum = User.GetDebtRatio();
+    DebtEquityNum = User.GetDtE();
+    CurrentRatioNum = User.GetCurrentRatio();
+    WorkingCapitalNum = User.GetWorkingCapital();
     
     // CurrentRatio = User.
     // WorkingCapital = User.

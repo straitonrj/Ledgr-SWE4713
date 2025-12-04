@@ -1042,7 +1042,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                             for (int k = j + 4; k < j + 6; k++)
                             {
                                 temp.Add(relevantEntries[k]);
-                                Console.WriteLine(relevantEntries[k]);
                             }
                         }
 
@@ -1066,7 +1065,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
     public static double GetAccountBalance(List<string> entries, char normalSide)
     {
         double balance = 0.00;
-        Console.WriteLine(normalSide);
         for (int i = 0; i < (entries.Count); i += 2)
         {
             if (normalSide == 'R')
@@ -1074,12 +1072,10 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 if (entries[i].Equals("Debit"))
                 {
                     balance -= double.Parse(entries[i + 1]);
-                    Console.WriteLine("r1");
                 }
                 else
                 {
                     balance += double.Parse(entries[i + 1]);
-                    Console.WriteLine("r2");
                 }
             }
             else
@@ -1087,12 +1083,10 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 if (entries[i].Equals("Debit"))
                 {
                     balance += double.Parse(entries[i + 1]);
-                    Console.WriteLine("l1");
                 }
                 else
                 {
                     balance -= double.Parse(entries[i + 1]);
-                    Console.WriteLine("l2");
                 }
             }
         }
@@ -1152,7 +1146,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                             for (int k = j + 4; k < j + 6; k++)
                             {
                                 temp.Add(relevantEntries[k]);
-                                Console.WriteLine(relevantEntries[k]);
                             }
                         }
 
@@ -1220,17 +1213,11 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             //adds revenue and expenses
             List<string> temp = GetIncomeStatement(fromDate, toDate);
-            Console.WriteLine("Hello from GetTrialBalance");
-            foreach (var element in temp)
-            {
-                Console.WriteLine("Trial Balance Income Statement: " + element);
-            }
             
             for (int i = 0; i < temp.Count; i++)
             {
-                trialBalance.Add(temp[i]);
+                //trialBalance.Add(temp[i]);
             }
-            
         }
         catch (Exception e)
         {
