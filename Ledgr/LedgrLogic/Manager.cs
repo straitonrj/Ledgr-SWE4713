@@ -1246,13 +1246,12 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             revCommand.Parameters.AddWithValue("@FIRST", fromDate);
             revCommand.Parameters.AddWithValue("@LAST", toDate);
 
-            revCommand.ExecuteNonQuery();
             double revBalance = 0;
 
             using var revReader = revCommand.ExecuteReader();
-            if (revReader.HasRows)
+            while (revReader.Read())
             {
-                while (revReader.Read())
+                if (revReader.HasRows)
                 {
                     List<string> returnedEntries = new List<string>();
                     char normalSide = revReader.GetChar(2);
@@ -1267,11 +1266,10 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                             temp.Add(relevantEntries[k]);
                         }
                     }
-
                     revBalance = GetAccountBalance(temp, normalSide);
                 }
             }
-            
+
             //getting exp balance for calculating net income
             var expCommand = new SqliteCommand(expSql, connection);
             expCommand.Parameters.AddWithValue("@FIRST", fromDate);
@@ -1282,9 +1280,9 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             using var expReader = expCommand.ExecuteReader();
             if (expReader.HasRows)
             {
-                while (expReader.Read())
+                if (expReader.HasRows)
                 {
-                    List<string> returnedEntries = new List<string>();
+
                     char normalSide = expReader.GetChar(2);
                     List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
                     List<string> temp = new List<string>();
@@ -1301,6 +1299,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                     expBalance = GetAccountBalance(temp, normalSide);
                 }
             }
+
             //net income
             retainedEarnings.Add(revBalance - expBalance + "");
         }
