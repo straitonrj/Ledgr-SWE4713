@@ -1280,7 +1280,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             using var expReader = expCommand.ExecuteReader();
             if (expReader.HasRows)
             {
-                if (expReader.HasRows)
+                while (expReader.Read())
                 {
 
                     char normalSide = expReader.GetChar(2);
