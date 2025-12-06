@@ -453,22 +453,38 @@
         }
         else
         {
+            foreach (var data in A)
+            {
+                Console.WriteLine(data);
+            }
+            foreach (var data in B)
+            {
+                Console.WriteLine(data);
+            }
             int journalID = Accountant.CreateJournalEntry(Date, Description, Username);
             for (int i = 0; i < DebitLines.Count; i++)
             {
                 if (DebitLines[i] != 0)
                 {
-                    Accountant.CreateJournalEntryDetails(Convert.ToInt32(AccountNumbers[i]), DebitLines[i], "Debit", journalID);
+                    if (A[i] != string.Empty)
+                    {
+                        string AN = A[i];
+                        Accountant.CreateJournalEntryDetails(Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result), DebitLines[i], "Debit", journalID);
+                    }
                 }
             }
             for (int i = 0; i < CreditLines.Count; i++)
             {
                 if (CreditLines[i] != 0)
                 {
-                    Accountant.CreateJournalEntryDetails(Convert.ToInt32(AccountNumbers[i]), CreditLines[i], "Credit", journalID);
+                    if (B[i] != string.Empty)
+                    {
+                        string AN = B[i];
+                        Accountant.CreateJournalEntryDetails((Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result)), CreditLines[i], "Credit", journalID);
+                    }
                 }
             }
-            NavigationManager.NavigateTo($"/CoAList/{Username}");
+            Nav.JournalEntry(Username);
         }
     }
 
