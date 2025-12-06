@@ -924,8 +924,7 @@ public class User
              
              connection.Close();
              
-             //ratios should be percentages
-             return (assets / liabilities) * 100;
+             return (assets / liabilities);
          }
          catch (Exception e)
          {
@@ -1014,9 +1013,8 @@ public class User
              }
 
              connection.Close();
-
-             //ratios should be percentages
-             return (liabilities/assets) * 100;
+             
+             return (liabilities/assets);
          }
          catch (Exception e)
          {
@@ -1058,11 +1056,9 @@ public class User
                      liabilities = liaReader.GetDouble(0);
                  }
              }
-
              connection.Close();
-
-             //ratios should be percentages
-             return (liabilities/equity) * 100;
+             
+             return (liabilities/equity);
          }
          catch (Exception e)
          {
@@ -1135,7 +1131,7 @@ public class User
                      sales = salesReader.GetDouble(0);
                  }
              }
-             return (netIncome / sales) * 100;
+             return (netIncome / sales);
          }
          catch (Exception e)
          {
@@ -1166,18 +1162,6 @@ public class User
                      assets = assetReader.GetDouble(0);
                  }
              }
-
-             double cash = 0;
-
-             using var cashCommand = new SqliteCommand(cashSql, connection);
-             using var cashReader = cashCommand.ExecuteReader();
-             while (cashReader.Read())
-             {
-                 if (cashReader.HasRows)
-                 {
-                     cash = cashReader.GetDouble(0);
-                 }
-             }
              
              double liabilities = 0;
 
@@ -1190,7 +1174,7 @@ public class User
                      liabilities = liaReader.GetDouble(0);
                  }
              }
-             return ((assets + cash) / liabilities) * 100;
+             return ((assets) / liabilities);
          }
          catch (Exception e)
          {
@@ -1221,7 +1205,7 @@ public class User
              }
 
              double netIncome = GetNetIncome();
-             return (netIncome/avgAsset) * 100;
+             return (netIncome/avgAsset);
          }
          catch (Exception e)
          {
@@ -1252,7 +1236,7 @@ public class User
              }
 
              double netIncome = GetNetIncome();
-             return (netIncome/avgEquity) * 100;
+             return (netIncome/avgEquity);
          }
          catch (Exception e)
          {
