@@ -1305,16 +1305,23 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 var retEarnSql = "SELECT Balance FROM Account WHERE Name = 'Retained Earnings'";
                 var retEarnCommand = new SqliteCommand(retEarnSql, connection);
                 using var retEarnReader = retEarnCommand.ExecuteReader();
-                while (retEarnReader.Read())
+                if (retEarnReader.HasRows)
                 {
-                    if (!retEarnReader.IsDBNull(0))
+                    while (retEarnReader.Read())
                     {
-                        retainedEarnings.Add(retEarnReader.GetDouble(0) + "");
+                        if (!retEarnReader.IsDBNull(0))
+                        {
+                            retainedEarnings.Add(retEarnReader.GetDouble(0) + "");
+                        }
+                        else
+                        {
+                            retainedEarnings.Add("0.00");
+                        }
                     }
-                    else
-                    {
-                        retainedEarnings.Add("0.00");
-                    }
+                }
+                else
+                {
+                    retainedEarnings.Add("0.00");
                 }
             }
             catch (Exception e)
@@ -1328,16 +1335,23 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 var divSql = "SELECT Balance FROM Account WHERE Name = 'Dividends'";
                 var divCommand = new SqliteCommand(divSql, connection);
                 using var divReader = divCommand.ExecuteReader();
-                while (divReader.Read())
+                if (divReader.HasRows)
                 {
-                    if (!divReader.IsDBNull(0))
+                    while (divReader.Read())
                     {
-                        retainedEarnings.Add(divReader.GetDouble(0) + "");
+                        if (!divReader.IsDBNull(0))
+                        {
+                            retainedEarnings.Add(divReader.GetDouble(0) + "");
+                        }
+                        else
+                        {
+                            retainedEarnings.Add("0.00");
+                        }
                     }
-                    else
-                    {
-                        retainedEarnings.Add("0.00");
-                    }
+                }
+                else
+                {
+                    retainedEarnings.Add("0.00");
                 }
             }
             catch (Exception e)
