@@ -1284,7 +1284,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 {
 
                     char normalSide = expReader.GetChar(2);
-                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
+                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, expReader.GetInt32(1));
                     List<string> temp = new List<string>();
 
                     //creating a list containing only DebitCredit and Amount to get the total

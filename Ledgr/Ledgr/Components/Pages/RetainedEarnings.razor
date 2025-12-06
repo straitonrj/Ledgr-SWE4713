@@ -216,6 +216,10 @@
 
   public List<string> RE { get; set; } = new List<string>();
 
+  public string NetIncome { get; set; } = string.Empty;
+  public string Dividends { get; set; } = string.Empty;
+  public string InitialRetEarn { get; set; } = string.Empty;
+
   protected override async Task OnParametersSetAsync()
   {
     Role = User.GetUserFromUserName(Username).Result.GetRole();

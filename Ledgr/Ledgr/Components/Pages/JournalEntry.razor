@@ -140,7 +140,15 @@
 
                 <fieldset class="lines">
                     <legend class="legend">Journal Entries</legend>
-
+                    <div class="line-head">Entry Type</div>
+                    <InputSelect @bind-Value="Type" class="input">
+                        <option value="Select..." selected>Select...</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Adjusting">Adjusting</option>
+                        <option value="Closing">Closing</option>
+                        <option value="Reversing">Reversing</option>
+                    </InputSelect>
+                    
                     <div class="line-head">
                         <span>Account</span>
                         <span class="num">Debit</span>
@@ -149,37 +157,42 @@
                     </div>
 
                     <div id="lineItems" class="line-items">
-                        @for (int i = 0; i < EntryLines; i++)
+                        <!-- Debit Lines -->
+                        @for (int i = 0; i < DebitAmount; i++)
                         {
                             int index = i;
+                            var options = GetOptions(1, index);
+                            
                             <div class="line-item">
-                                <InputSelect @key="i" @bind-Value="AccountNameLine[index]">
-                                    <option value="" selected>Select...</option>
-                                    @foreach (var option in GetAvailableOptions(i))
+                                <InputSelect @bind-Value="A[index]">
+                                    <option value="" style="text-align: right" selected>Select...</option>
+                                    @foreach (var option in options)
                                     {
-                                        <option @key="option" value="@option">@option</option>
+                                        <option value="@option" style="text-align: right">@option</option>
                                     }
                                 </InputSelect>
                                 <!-- Enable/Disable Debit Section approrpiately -->
-                                @if (CreditLines[index] != 0.00)
-                                {
-                                    <input placeholder="-- --" readonly style="text-align: center"/>
-                                }
-                                @if (CreditLines[index] == 0.00)
-                                {
-                                <InputNumber @bind-Value="DebitLines[index]" style="text-align: right"></InputNumber>
-                                }
-                                
-                                <!-- Enable / Disable the credit field appropriately -->
-                                @if (DebitLines[index] != 0.00)
-                                {
-                                    <input placeholder="-- --" style="text-align: center" readonly/>
-                                }
-                                @if (DebitLines[index] == 0.00)
-                                {
-                                <InputNumber @bind-Value="CreditLines[index]" style="text-align: right"></InputNumber>
-                                }
+                                <InputNumber @bind-Value="DebitLines[index]"></InputNumber>
                             </div>
+                        }
+                        
+                        <!-- Credit Lines -->
+                        @for (int i = 0; i < CreditAmount; i++)
+                        {
+                        int index = i;
+                        var options = GetOptions(2, index);
+
+                        <div class="line-item">
+                            <InputSelect @bind-Value="B[index]">
+                                <option value="" style="text-align: right" selected>Select...</option>
+                                @foreach (var option in options)
+                                {
+                                    <option value="@option" style="text-align: right">@option</option>
+                                }
+                            </InputSelect>
+                            <div></div>
+                            <InputNumber @bind-Value="CreditLines[index]"></InputNumber>
+                        </div>
                         }
                     </div>
 
@@ -288,9 +301,11 @@
     public List<string> SelectedValues { get; set; } = new List<string>();
     
     // Journal Specific
+    public string Type { get; set; } // Normal, Adjusting, Closing, Reversing
     public string Reference { get; set; } = Accountant.GetNextJEDNumber();
     public string Comment { get; set; } = string.Empty;
-    public List<string> AccountNameLine { get; set; } = new List<string>();
+    public List<string> A { get; set; } = new List<string>();
+    public List<string> B { get; set; } = new List<string>();
     public List<Double> DebitLines { get; set; } = new List<Double>();
     public List<Double> CreditLines { get; set; } = new List<Double>();
 
@@ -338,16 +353,45 @@
         RefDoc = e.File;
     }
 
-    private IEnumerable<string> GetAvailableOptions(int index)
+    /* Trying a new approach for separation 
+    private IEnumerable<string> GetOptionsForIndex(int index)
     {
-        var usedByOthers = AccountNameLine
-            .Select((val, i) => (val, i))
-            .Where(t => t.i != index && !string.IsNullOrEmpty(t.val))
-            .Select(t => t.val!)
-            .ToHashSet();
+        // All currently chosen values except this index
+        var taken = AccountNameLine.Where((value, idx) => idx != index && value != null);
 
+        return AccountNames
+            .Where(opt => !taken.Contains(opt))
+            .Union(AccountNameLine[index] is null ? Enumerable.Empty<string>() 
+                : new[] { AccountNameLine[index]! });
+    }
+    */
+    
+    int GROUP_A = 1;
+    int GROUP_B = 2;
+    IEnumerable<string> GetOptions(int group, int index)
+    {
+        // Grab all chosen values EXCEPT for this dropdown
+        var taken = new List<(int Group, int Index, string Value)>();
 
-        return AccountNames.Where(opt => !usedByOthers.Contains(opt));
+        for (int i = 0; i < A.Count; i++)
+            if (A[i] != null) taken.Add((GROUP_A, i, A[i]!));
+
+        for (int i = 0; i < B.Count; i++)
+            if (B[i] != null) taken.Add((GROUP_B, i, B[i]!));
+
+        return AccountNames
+            .Where(opt =>
+                !taken.Any(t =>
+                        t.Value == opt &&
+                        !(t.Group == group && t.Index == index) // allow current selection
+                )
+            )
+            .Concat(
+                // always include the currently selected value if set
+                group == GROUP_A && A[index] != null ? new[] { A[index]! } :
+                group == GROUP_B && B[index] != null ? new[] { B[index]! } :
+                Array.Empty<string>()
+            );
     }
     
     private void OnSelectChange(int index, ChangeEventArgs e)
@@ -374,7 +418,8 @@
             AccountNumbers.Add(Accounts[i]);
             AccountNames.Add(Accounts[i + 1]);
             SelectedValues.Add(string.Empty);
-            AccountNameLine.Add(string.Empty);
+            A.Add(string.Empty);
+            B.Add(string.Empty);
             DebitLines.Add(0.00);
             CreditLines.Add(0.00);
         }
@@ -389,6 +434,10 @@
         if (Date == string.Empty)
         {
             Alert = "Please select a date for this journal entry";
+        }
+        else if (Type == string.Empty)
+        {
+            Alert = "Please select a type for this entry";
         }
         else if (EntryLines < 2)
         {
