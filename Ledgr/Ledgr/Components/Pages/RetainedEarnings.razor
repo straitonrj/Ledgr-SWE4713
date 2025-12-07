@@ -152,25 +152,25 @@
             <tbody id="reBody">
             <tr>
               <td>Retained Earnings, beginning</td>
-              <td class="right" id="reBeginning">$15,000.00</td>
+              <td class="right" id="reBeginning">$@IreFormat</td>
             </tr>
             <tr>
               <td>Add: Net Income</td>
-              <td class="right" id="reNetIncome">$9,750.00</td>
+              <td class="right" id="reNetIncome">$@NiFormat</td>
             </tr>
             <tr>
               <td>Less: Dividends</td>
-              <td class="right" id="reDividends">($3,000.00)</td>
+              <td class="right" id="reDividends">($@DivFormat)</td>
             </tr>
             <tr class="subtotal-row">
               <td><strong>Increase in Retained Earnings</strong></td>
-              <td class="right" id="reIncrease">$6,750.00</td>
+              <td class="right" id="reIncrease">$@Increase</td>
             </tr>
             </tbody>
             <tfoot>
             <tr class="report-totals">
               <th>Retained Earnings, ending</th>
-              <td class="right" id="reEnding">$21,750.00</td>
+              <td class="right" id="reEnding">$@EndinRetEarn</td>
             </tr>
             </tfoot>
           </table>
@@ -216,19 +216,33 @@
 
   public List<string> RE { get; set; } = new List<string>();
 
-  public string NetIncome { get; set; } = string.Empty;
-  public string Dividends { get; set; } = string.Empty;
-  public string InitialRetEarn { get; set; } = string.Empty;
+  public double NetIncome { get; set; } = 0;
+  public double Dividends { get; set; } = 0;
+  public double InitialRetEarn { get; set; } = 0;
+
+  public string IreFormat;
+  public string DivFormat;
+  public string NiFormat;
+
+  public string Increase = string.Empty;
+  public string EndinRetEarn = string.Empty;
 
   protected override async Task OnParametersSetAsync()
   {
     Role = User.GetUserFromUserName(Username).Result.GetRole();
-
     RE = Manager.GetRetainedEarnings(fromDate, toDate);
-    foreach (string data in RE)
-    {
-      Console.WriteLine(data);
-    }
+
+    InitialRetEarn = Convert.ToDouble(RE[0]);
+    Dividends = Convert.ToDouble(RE[1]);
+    NetIncome = Convert.ToDouble(RE[2]);
+
+    IreFormat = InitialRetEarn.ToString("N2");
+    DivFormat = Dividends.ToString("N2");
+    NiFormat = NetIncome.ToString("N2");
+
+    Increase = (NetIncome - Dividends).ToString("N2");
+    EndinRetEarn = (InitialRetEarn - Dividends + NetIncome).ToString("N2");
+    
     StateHasChanged();
   }
 
