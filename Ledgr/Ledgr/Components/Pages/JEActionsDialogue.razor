@@ -1,0 +1,59 @@
+@page "/journalEntryManagerActions"
+@using LedgrLogic
+
+@if (Show)
+{
+<link rel="stylesheet" href="home.css"/>
+<body>
+<div class="modal-backdrop">
+    <div class="dialog-card">
+        <div class="dialog-header">
+            <h2>Are you sure you want to approve this entry?</h2>
+            <button @onclick="Close" aria-label="Close dialog"
+                    style="background:none;border:0;font-size:18px;cursor:pointer">✕
+            </button>
+        </div>
+
+        <div class="dialog-body">
+            <div style="display: grid; place-items: center;">
+                <div>
+                    <button @onclick="Close" type="button" class="btn btn--secondary">Cancel</button>
+                    <button @onclick="ApproveEntry" type="button" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+}
+
+@code{
+
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback<bool> ShowChanged { get; set; }
+    [Parameter] public string EntryID { get; set; }
+
+    // Update Home Page
+    [Parameter] public EventCallback<string> OnUserActivated { get; set; }
+
+    private async Task Close()
+    {
+        if (ShowChanged.HasDelegate)
+        await ShowChanged.InvokeAsync(false);
+    }
+
+    private async Task ApproveEntry()
+    {
+        try
+        {
+            Manager.ApproveJournalEntry(EntryID);
+            await Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+}

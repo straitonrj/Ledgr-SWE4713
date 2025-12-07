@@ -227,11 +227,6 @@
         {
             JournalEntries[i + 4] = Convert.ToDouble(JournalEntries[i + 4]).ToString("N2");
         }
-
-        foreach (string data in JournalEntries)
-        {
-            Console.WriteLine(data);
-        }
         
         StateHasChanged();
     }

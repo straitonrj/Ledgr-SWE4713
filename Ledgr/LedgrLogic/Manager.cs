@@ -162,7 +162,7 @@ public class Manager : User
 
                 insertCommand.ExecuteNonQuery();
 
-                var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+                var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
                 var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -217,7 +217,6 @@ public class Manager : User
         catch (Exception e)
         {
             Console.WriteLine(e);
-            //throw some error here
         }
 
         return true;
@@ -225,7 +224,7 @@ public class Manager : User
     
     //can approve or reject journal entries made by an accountant, if a journal entry is rejected the manager must explain why
     //(DONE) (NOT TESTED)
-    public static bool ApproveJournalEntry(int journalEntryID)
+    public static bool ApproveJournalEntry(string journalEntryID)
     {
         var sql = "UPDATE JournalEntry SET Status = 'A' WHERE ID = @JOURNALENTRYID";
         try
@@ -966,11 +965,11 @@ public class Manager : User
                 break;
             case('A'):
                 sql =
-                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'A' AND t1.Type = 'A'";
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'A' AND t1.Type = 'A'";
                 break;
             case('R'):
                 sql =
-                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
                 break;
         }
         try
@@ -982,7 +981,7 @@ public class Manager : User
             {
                 while (reader.Read())
                 {
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 9; i++)
                     {
                         if (!reader.IsDBNull(i))
                         {
@@ -1391,7 +1390,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             insertCommand.ExecuteNonQuery();
             
-            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
             var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1431,7 +1430,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             insertCommand.ExecuteNonQuery();
 
-            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
             var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1472,7 +1471,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
             insertCommand.ExecuteNonQuery();
             
-            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
             var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1512,7 +1511,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
                 insertCommand.ExecuteNonQuery();
                 
-                var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+                var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
                 var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1550,11 +1549,11 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 break;
             case('A'):
                   sql =
-                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'C' AND t1.Type = 'A'";
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'C' AND t1.Type = 'A'";
                 break;
             case('R'):
                   sql =
-                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'C' AND t1.Type = 'A'";
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'C' AND t1.Type = 'A'";
                 break;
         }
         try
@@ -1566,7 +1565,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             {
                 while (reader.Read())
                 {
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 9; i++)
                     {
                         if (!reader.IsDBNull(i))
                         {
@@ -1609,7 +1608,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             insertCommand.ExecuteNonQuery();
             
-            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
             var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1649,7 +1648,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             
             insertCommand.ExecuteNonQuery();
 
-            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
             var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1690,7 +1689,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
             insertCommand.ExecuteNonQuery();
             
-            var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+            var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
             var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1730,7 +1729,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
                 insertCommand.ExecuteNonQuery();
                 
-                var selectSql = "SELECT ID FROM JournalEntry ORDER BY DESC LIMIT 1";
+                var selectSql = "SELECT ID FROM JournalEntry ORDER BY ID DESC LIMIT 1";
 
                 var selectCommand = new SqliteCommand(selectSql, connection);
 
@@ -1749,7 +1748,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 Console.WriteLine(e);
                 //throw some error here
             }
-
             return journalEntryID;
     }
     
@@ -1768,11 +1766,11 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
                 break;
             case('A'):
                   sql =
-                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
                 break;
             case('R'):
                   sql =
-                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM AdjustingJournalEntry as t1 INNER JOIN AdjustingJournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
+                    "SELECT t1.ID, t1.Date, t3.Name, t2.DebitCredit, t2. Amount, t1.Status, t1.Comment, t1.Reference, t4.Username FROM JournalEntry as t1 INNER JOIN JournalEntryDetails as t2 on t1.ID = t2.JournalEntryID INNER JOIN Account AS t3 ON t2.AccountNumber = t3.Number INNER JOIN User AS t4 ON t1.UserID = t4.ID WHERE t1.status = 'R' AND t1.Type = 'A'";
                 break;
         }
         try
@@ -1784,7 +1782,7 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             {
                 while (reader.Read())
                 {
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 9; i++)
                     {
                         if (!reader.IsDBNull(i))
                         {

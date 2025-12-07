@@ -213,7 +213,7 @@ public static class Account
             EventLog.LogAccount('a', accountNum, userID);
             
             //update balance in database
-            UpdateAccountBalance(accountNum, username);
+            await UpdateAccountBalance(accountNum, username);
             
             await connection.CloseAsync();
         }
@@ -282,7 +282,7 @@ public static class Account
             updateCommand.Parameters.AddWithValue("@BALANCE", balance);
             updateCommand.Parameters.AddWithValue("@NUM", accountNum);
 
-            command.ExecuteNonQuery();
+            updateCommand.ExecuteNonQuery();
             
             //saving the after image in the event log
             EventLog.LogAccount('b', accountNum, userID);

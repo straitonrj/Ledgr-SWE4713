@@ -5,6 +5,8 @@
 @using Org.BouncyCastle.Tls
 @inject NavigationManager NavigationManager
 @inject Navigation Nav
+@inject IJSRuntime JS
+
 
 <!doctype html>
 <html lang="en">
@@ -280,6 +282,7 @@
 </footer>
 
 <script src="/app.js"></script>
+<script src="/site.js"></script>
 <script src="/journal.js"></script>
 
 </body>
@@ -353,18 +356,6 @@
         RefDoc = e.File;
     }
 
-    /* Trying a new approach for separation 
-    private IEnumerable<string> GetOptionsForIndex(int index)
-    {
-        // All currently chosen values except this index
-        var taken = AccountNameLine.Where((value, idx) => idx != index && value != null);
-
-        return AccountNames
-            .Where(opt => !taken.Contains(opt))
-            .Union(AccountNameLine[index] is null ? Enumerable.Empty<string>() 
-                : new[] { AccountNameLine[index]! });
-    }
-    */
     
     int GROUP_A = 1;
     int GROUP_B = 2;
@@ -461,31 +452,62 @@
             {
                 Console.WriteLine(data);
             }
-            int journalID = Accountant.CreateJournalEntry(Date, Description, Username);
-            for (int i = 0; i < DebitLines.Count; i++)
+
+            int journalID = -2;
+            if (Type == "Normal")
             {
-                if (DebitLines[i] != 0)
+                journalID = Manager.CreateJournalEntry(Date, Description, Username);
+            }
+            if (Type == "Adjusting")
+            {
+                journalID = Manager.CreateAdjustingJournalEntry(Date, Description, Username);
+            }
+            else if (Type == "Closing")
+            {
+                journalID = Manager.CreateClosingJournalEntry(Date, Description, Username);
+            }
+            else if (Type == "Reversing")
+            {
+                journalID = Manager.CreateReversingJournalEntry(Date, Description, Username);
+            }
+
+            if (journalID != -2)
+            {
+                Console.WriteLine(journalID);
+                for (int i = 0; i < DebitLines.Count; i++)
                 {
-                    if (A[i] != string.Empty)
+                    if (DebitLines[i] != 0)
                     {
-                        string AN = A[i];
-                        Accountant.CreateJournalEntryDetails(Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result), DebitLines[i], "Debit", journalID);
+                        if (A[i] != string.Empty)
+                        {
+                            string AN = A[i];
+                            Console.WriteLine(Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result));
+                            Manager.CreateJournalEntryDetails(Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result), DebitLines[i], "Debit", journalID, Username);
+                        }
                     }
                 }
-            }
-            for (int i = 0; i < CreditLines.Count; i++)
-            {
-                if (CreditLines[i] != 0)
+
+                for (int i = 0; i < CreditLines.Count; i++)
                 {
-                    if (B[i] != string.Empty)
+                    if (CreditLines[i] != 0)
                     {
-                        string AN = B[i];
-                        Accountant.CreateJournalEntryDetails((Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result)), CreditLines[i], "Credit", journalID);
+                        if (B[i] != string.Empty)
+                        {
+                            string AN = B[i];
+                            Console.WriteLine(Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result));
+                            Manager.CreateJournalEntryDetails(Convert.ToInt32(Account.GetAccountNumberFromAccountName(AN).Result), DebitLines[i], "Debit", journalID, Username);
+                        }
                     }
                 }
+
+                await Refresh();
             }
-            Nav.JournalEntry(Username);
         }
+    }
+    
+    private async Task Refresh()
+    {
+        await JS.InvokeVoidAsync("refreshPage");
     }
 
     public bool VerifyAmounts()

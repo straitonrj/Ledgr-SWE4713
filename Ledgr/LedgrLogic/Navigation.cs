@@ -80,7 +80,7 @@ public class Navigation
 
     public void AdjustJournal(string Username)
     {
-        _nav.NavigateTo($"/AdjustingJournalEntry/{Username}");
+        _nav.NavigateTo($"/ApproveJournal/{Username}");
     }
     public void AdjustJournalEntry(string Username)
     {
