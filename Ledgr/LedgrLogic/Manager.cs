@@ -114,18 +114,7 @@ public class Manager : User
             command.Parameters.AddWithValue("@AMOUNT", amount);
             command.Parameters.AddWithValue("@JE", journalEntryID);
             command.Parameters.AddWithValue("@DC", debitCredit);
-            if (debitCredit.Equals("Debit"))
-            {
-                Account.UpdateAccountDebit(accountNum, amount, username);
-            }
-            else if (debitCredit.Equals("Credit"))
-            {
-                Account.UpdateAccountCredit(accountNum, amount, username);
-            }
-            else
-            {
-                throw new Exception("Debit or Credit must be selected");
-            }
+            
             command.ExecuteNonQuery();
             connection.Close();
         }
@@ -153,18 +142,7 @@ public class Manager : User
             command.Parameters.AddWithValue("@JE", journalEntryID);
             command.Parameters.AddWithValue("@DC", debitCredit);
             command.Parameters.AddWithValue("@DOC", refDoc);
-            if (debitCredit.Equals("Debit"))
-            {
-                Account.UpdateAccountDebit(accountNum, amount, username);
-            }
-            else if (debitCredit.Equals("Credit"))
-            {
-                Account.UpdateAccountCredit(accountNum, amount, username);
-            }
-            else
-            {
-                throw new Exception("Debit or Credit must be selected");
-            }
+            
             command.ExecuteNonQuery();
             connection.Close();
         }
@@ -216,6 +194,7 @@ public class Manager : User
                         Account.UpdateAccountCredit(accountNum, amount, username);
                     }
                 }
+                
             }
             
             connection.Close();
