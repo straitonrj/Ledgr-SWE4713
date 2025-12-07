@@ -444,15 +444,6 @@
         }
         else
         {
-            foreach (var data in A)
-            {
-                Console.WriteLine(data);
-            }
-            foreach (var data in B)
-            {
-                Console.WriteLine(data);
-            }
-
             int journalID = -2;
             if (Type == "Normal")
             {
@@ -471,7 +462,7 @@
                 journalID = Manager.CreateReversingJournalEntry(Date, Description, Username);
             }
 
-            if (journalID != -2)
+            if (journalID != -2 && journalID != 2)
             {
                 Console.WriteLine(journalID);
                 for (int i = 0; i < DebitLines.Count; i++)

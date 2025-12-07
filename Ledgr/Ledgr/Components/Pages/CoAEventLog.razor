@@ -164,7 +164,7 @@
                         <th>Before/After</th>
                         <th>Account No</th>
                         <th>Account Name</th>
-                        <th>User ID</th>
+                        <!--<th>User ID</th>-->
                         <th>Date/Time</th>
                         <th>Initial Balance</th>
                         <th>Debit</th>
@@ -188,12 +188,12 @@
                             }
                             <td>@EventLog[index + 2]</td>
                             <td>@EventLog[index + 3]</td>
-                            <td>@EventLog[index + 16]</td>
+                            <!--<td>@EventLog[index + 16]</td>-->
                             <td>@EventLog[index + 17]</td>
-                            <td>@EventLog[index + 8]</td>
-                            <td>@EventLog[index + 9]</td>
-                            <td>@EventLog[index + 10]</td>
-                            <td>@EventLog[index + 11]</td>
+                            <td style="text-align: right">@Convert.ToDouble(EventLog[index + 8]).ToString("N2")</td>
+                            <td style="text-align: right">@Convert.ToDouble(EventLog[index + 9]).ToString("N2")</td>
+                            <td style="text-align: right">@Convert.ToDouble(EventLog[index + 10]).ToString("N2")</td>
+                            <td style="text-align: right">@Convert.ToDouble(EventLog[index + 11]).ToString("N2")</td>
                             @if (Role == "Admin")
                             {
                                 <td><button @onclick="(() => AccountEdit(index))" type="button" class = "btn btn--secondary">View</button></td>
@@ -253,10 +253,6 @@
     protected override async Task OnParametersSetAsync()
     {
         Role = (await Admin.GetUserFromUserName(Username)).GetRole();
-        foreach (string data in EventLog)
-        {
-            Console.WriteLine(data);
-        }
     }
     
     // Nav Buttons - Linked to side bar
