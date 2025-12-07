@@ -206,7 +206,7 @@ public class Manager : User
 
         return true;
     }
-    public static bool RejectJournalEntry(int journalEntryID, string comment)
+    public static bool RejectJournalEntry(string journalEntryID, string comment)
     {
         var sql = "UPDATE JournalEntry SET Status = 'R', Comment = @COMMENT WHERE ID = @JOURNALENTRYID";
         try

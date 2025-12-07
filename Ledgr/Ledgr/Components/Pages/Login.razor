@@ -172,7 +172,6 @@
             {
                 currentUser = await User.VerifyLogin(Username, Password);
                 User cur = await User.VerifyLogin(Username, Password);
-                Console.WriteLine(currentUser.GetType().Name);
                 if (currentUser != null)
                 {
                     // Role verification

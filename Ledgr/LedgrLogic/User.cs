@@ -499,8 +499,6 @@ public class User
         else
         {
             Active = false;
-            return new Admin(TempUsername, TempPassword, StoredEmail, StoredUserID, StoredEmployeeID, Active, false);
-
             throw new InactiveUserException("The account you are trying to access is suspended. Please contract an administrator for support.");
         }
 

@@ -47,6 +47,7 @@
         try
         {
             Manager.ApproveJournalEntry(EntryID);
+            StateHasChanged();
             await Close();
         }
         catch (Exception e)

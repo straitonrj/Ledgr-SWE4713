@@ -211,7 +211,7 @@
                                                 </td>
                                                 <td>
                                                     <button @onclick="() => ApproveEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">✅</button>
-                                                    <button style="font-size: 30px; margin: 0px" class="btn">❌</button>
+                                                    <button @onclick="() => RejectEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">❌</button>
                                                 </td>
                                             }
                                             @if (EntriesAll[index + 5] == "A")
@@ -247,7 +247,7 @@
                                             </td>
                                             <td>
                                                 <button @onclick="() => ApproveEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">✅</button>
-                                                <button style="font-size: 30px; margin: 0px" class="btn">❌</button>
+                                                <button @onclick="() => RejectEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">❌</button>
                                             </td>
                                         }
                                         @if (EntriesAll[index + 5] == "A")
@@ -329,7 +329,10 @@
         <small class="muted">© 2025 LEDGR · Build v0.1</small>
     </div>
 </footer>
-<JEActionsDialogue Show="@show" ShowChanged="val => show = val" EntryID="@ActiveEntry"></JEActionsDialogue>
+
+<JEApproveDialogue Show="@showApprove" ShowChanged="val => showApprove = val" EntryID="@ActiveEntry"></JEApproveDialogue>
+<JERejectDialogue Show="@showReject" ShowChanged="val => showReject = val" EntryID="@ActiveEntry"></JERejectDialogue>
+
 <script src="dashboardN.js"></script>
 </body>
 </html>
@@ -341,7 +344,8 @@
     public string CalendarDate = DateTime.Today.ToString("M");
     
     // Dialogue
-    public bool show = false;
+    public bool showApprove = false;
+    public bool showReject = false;
     public string ActiveEntry { get; set; } = string.Empty;
     
     public List<string> Pending { get; set; }
@@ -365,7 +369,13 @@
     public void ApproveEntry(string entryID)
     {
         ActiveEntry = entryID;
-        show = true;
+        showApprove = true;
+    }
+
+    public void RejectEntry(string entryID)
+    {
+        ActiveEntry = entryID;
+        showReject = true;
     }
 
     protected override async Task OnParametersSetAsync()
@@ -435,6 +445,11 @@
         foreach (string data in RRejected)
         {
             EntriesAll.Add(data);
+        }
+
+        foreach (var VARIABLE in EntriesAll)
+        {
+            Console.WriteLine(VARIABLE);
         }
         
         StateHasChanged();
