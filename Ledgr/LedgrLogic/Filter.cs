@@ -43,16 +43,13 @@ public class Filter
             
             List<string> filtered = new List<string>();
             
-            Console.WriteLine("Start of filter");
             // Accounts have fifteen fields
             for (int i = 0; i < CoA.Count; i += 15)
             {
                 if ((checkCat && CoA[i + 4] == Category) || !checkCat)
                 {
-                    Console.WriteLine($"filter cat: {CoA[4]}");
                     if ((checkSubCategory && CoA[i + 5] == SubCategory) || !checkSubCategory)
                     {
-                        Console.WriteLine("filter subcat");
                         if ((checkNS && CoA[i + 3] == NS) || !checkNS)
                         {
                             if ((checkFrom && Convert.ToInt32(CoA[i + 0]) >= accountNumFrom) || !checkFrom)

@@ -1,4 +1,6 @@
 @page "/help/{Username}"
+@using LedgrLogic
+@inject Navigation Nav
 
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +34,19 @@
     <input type="text" placeholder="Search by keyword or ask a question">
   </div>
   -->
-</section> 
+</section>
+
+<SideBar>
+  <button @onclick="(() => Nav.Home(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Dashboard</button>
+  <button @onclick="(() => Nav.CoAListCall(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Chart of Accounts List</button>
+  <button @onclick="(() => Nav.CoAForm(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none" >Chart of Accounts Form</button>
+  <button @onclick="(() => Nav.CoAEventLog(Username))" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none" >Chart of Accounts Event Log</button>
+  @if (Role == "Admin")
+  {
+  <button @onclick="() => Nav.ManageUser(Username)" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Manage Users</button>
+  <button @onclick="() => Nav.PasswordReport(Username)" type="button" class="btn-nav" style="background-color: #1e1e2f; color: #FFFFFF; border: none">Password Report</button>
+  }
+</SideBar>
 
 <!-- BREADCRUMB IMPLEMENTATION
 <nav class="back-link">
@@ -228,5 +242,11 @@
 @code {
 
   [Parameter] public string Username { get; set; }
+  public string Role { get; set; } = string.Empty;
+  
+  protected override async Task OnParametersSetAsync()
+  {
+    Role = User.GetUserFromUserName(Username).Result.GetRole();
+  }
 
 }

@@ -56,8 +56,7 @@
                 <li><a @onclick="() => Nav.Home(Username)" class="app-nav__link" href="#">Dashboard</a></li>
                 <li><a @onclick="() => Nav.CoAListCall(Username)" class="app-nav__link" href="#">Chart of Accounts</a></li>
                 <li><a @onclick="() => Nav.CoAEventLog(Username)" class="app-nav__link" href="#">Event Log</a></li>
-                <li><a @onclick="() => Nav.JournalCall(Username)" class="app-nav__link" href="#">Journal</a></li>
-                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Adjusting Entries</a></li>
+                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
                 <li><a @onclick="() => Nav.Reports(Username)" class="app-nav__link" href="#">Reports</a></li>
             </ul>
         </div>
@@ -329,6 +328,7 @@
         
         for (int i = 0; i < LedgerList.Count; i+=7)
         {
+            LedgerList[i + 6] = Manager.GetJournalIDFromEntryLine(LedgerList[i + 6]).Result;
             // Separate Section for Balance Handling
             if (LedgerList[i + 4] == "Debit")
             {

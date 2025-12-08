@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Adjusting Journal • LEDGR</title>
+    <title>Journal • LEDGR</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
@@ -52,8 +52,7 @@
                 <li><a @onclick="() => Nav.Home(Username)" class="app-nav__link" href="#">Dashboard</a></li>
                 <li><a @onclick="() => Nav.CoAListCall(Username)" class="app-nav__link" href="#">Chart of Accounts</a></li>
                 <li><a @onclick="() => Nav.CoAEventLog(Username)" class="app-nav__link" href="#">Event Log</a></li>
-                <li><a @onclick="() => Nav.JournalCall(Username)" class="app-nav__link" href="#">Journal</a></li>
-                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link is-active" href="#">Adjusting Entries</a></li>
+                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
                 <li><a @onclick="() => Nav.Reports(Username)" class="app-nav__link" href="#">Reports</a></li>
             </ul>
         </div>
@@ -106,7 +105,7 @@
 <section class="cards">
     <article id="aje-status-card" class="card card--page">
         <header class="page-head page-head--inline">
-            <h2 class="h2">Adjusting Entries</h2>
+            <h2 class="h2">Journal</h2>
         </header>
 
         <div class="tabs tabs-compact" role="tablist" aria-label="Adjusting entry status">
@@ -199,7 +198,7 @@
                                     @if (EntriesAll[index] != EntriesAll[index - 9])
                                     {
                                         <tr>
-                                            <td>@EntriesAll[index]</td>
+                                            <td><a @onclick="() => Nav.ViewJournalEntry(Username, EntriesAll[index])" href="#">@EntriesAll[index]</a></td>
                                             <td>@EntriesAll[index + 8]</td>
                                             <td>@EntriesAll[index + 1]</td>
                                             <td>@EntriesAll[index + 2]</td>
@@ -235,7 +234,7 @@
                                 @if (index == 0)
                                 {
                                     <tr>
-                                        <td>@EntriesAll[index]</td>
+                                        <td><a @onclick="() => Nav.ViewJournalEntry(Username, EntriesAll[index])" href="#">@EntriesAll[index]</a></td>
                                         <td>@EntriesAll[index + 8]</td>
                                         <td>@EntriesAll[index + 1]</td>
                                         <td>@EntriesAll[index + 2]</td>

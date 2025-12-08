@@ -44,8 +44,7 @@
                 <li><a @onclick="() => Nav.Home(Username)" class="app-nav__link" href="#">Dashboard</a></li>
                 <li><a @onclick="() => Nav.CoAListCall(Username)" class="app-nav__link" href="#">Chart of Accounts</a></li>
                 <li><a @onclick="() => Nav.CoAEventLog(Username)" class="app-nav__link" href="#">Event Log</a></li>
-                <li><a @onclick="() => Nav.JournalCall(Username)" class="app-nav__link is-active" href="#">Journal</a></li>
-                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Adjusting Entries</a></li>
+                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
                 <li><a @onclick="() => Nav.Reports(Username)" class="app-nav__link" href="#">Reports</a></li>
             </ul>
         </div>
@@ -130,9 +129,6 @@
                     <label class="field">
                         <span class="label">Date</span>
                         <div class="date-field">
-                            <svg class="icon icon--calendar" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm14 8H3v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10Zm-14 4h6v4H7v-4Z"/>
-                            </svg>
                             <InputText @bind-Value="JournalDate" type="date" id="jeDate" required />
                         </div>
                     </label>
@@ -153,11 +149,11 @@
                         int index = i;
                         <div class="line-item">
                             <!-- Account Effected -->
-                            <InputText @bind-Value="DebitAccountNames[index]" readonly></InputText>
+                            <InputText @bind-Value="DebitAccountNames[index]" class="input" readonly></InputText>
                             <!-- Amount -->
-                            <InputText @bind-Value="DebitsFormatted[index]" style="text-align: right" readonly></InputText>
+                            <InputText @bind-Value="DebitsFormatted[index]" class="input" style="text-align: right" readonly></InputText>
                             <!-- Empty Credit Field -->
-                            <InputText @bind-Value="empty" readonly=""></InputText>
+                            <InputText @bind-Value="empty" class="input" readonly=""></InputText>
                         </div>
                         }
                         
@@ -166,11 +162,11 @@
                         int index = i;
                         <div class="line-item">
                             <!-- Account Effected -->
-                            <InputText @bind-Value="CreditAccountNames[index]" readonly></InputText>
+                            <InputText @bind-Value="CreditAccountNames[index]" class="input" readonly></InputText>
                             <!-- Empty Debit Field -->
-                            <InputText @bind-Value="empty" readonly=""></InputText>
+                            <InputText @bind-Value="empty" class="input" readonly=""></InputText>
                             <!-- Amount -->
-                            <InputText @bind-Value="CreditsFormatted[index]" style="text-align: right" readonly></InputText>
+                            <InputText @bind-Value="CreditsFormatted[index]" class="input" style="text-align: right" readonly></InputText>
                         </div>
                         }
                     </div>
@@ -269,7 +265,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        newEntryID = Manager.GetJournalIDFromEntryLine(EntryID).Result;
+        // I could explain, but I won't
+        newEntryID = EntryID;
         Role = User.GetUserFromUserName(Username).Result.GetRole();
         EntryLines = Manager.ViewJournalEntry(newEntryID).Result;
         NumLines = EntryLines.Count / 3;
