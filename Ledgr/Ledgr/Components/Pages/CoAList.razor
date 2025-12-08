@@ -55,8 +55,14 @@
         <li><a @onclick="(() => Nav.Home(Username))" class="app-nav__link" href="#">Dashboard</a></li>
         <li><a @onclick="(() => Nav.CoAListCall(Username))" class="app-nav__link is-active" href="#">Chart of Accounts</a></li>
         <li><a @onclick="(() => Nav.CoAEventLog(Username))" class="app-nav__link" href="#">Event Log</a></li>
+        @if (Role != "Admin")
+        {
         <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
+        @if (Role != "Accountant")
+        {
         <li><a @onclick="(() => Nav.Reports(Username))" class="app-nav__link" href="#">Reports</a></li>
+        }
+        }
       </ul>
     </div>
   </nav>
@@ -114,8 +120,8 @@
       <label class="label" for="coaDateTo">To</label>
       <input id="coaDateTo" type="date" class="input" />
     </div>
-    <button id="btnApplyDates" class="btn btn--primary btn--small" type="button">Apply Dates</button>
-    <button type="button" @onclick="AddAccount" class="btn btn--primary btn--small" role="button">Add Account</button>
+    <button @onclick="FilterCoA" id="btnApplyDates" class="btn btn--primary btn--small" type="button">Apply Dates</button>
+    <!-- <button type="button" @onclick="AddAccount" class="btn btn--primary btn--small" role="button">Add Account</button> -->
   </section>
 
   <section class="card1 card--fluid" aria-labelledby="coaTitle">      

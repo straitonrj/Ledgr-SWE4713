@@ -54,8 +54,14 @@
                 <li><a @onclick="(() => Nav.Home(Username))" class="app-nav__link" href="#">Dashboard</a></li>
                 <li><a @onclick="(() => Nav.CoAListCall(Username))" class="app-nav__link" href="#">Chart of Accounts</a></li>
                 <li><a @onclick="(() => Nav.CoAEventLog(Username))" class="app-nav__link is-active" href="#">Event Log</a></li>
+                @if (Role != "Admin")
+                {
                 <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
+                @if (Role != "Accountant")
+                {
                 <li><a @onclick="(() => Nav.Reports(Username))" class="app-nav__link" href="#">Reports</a></li>
+                }
+                }
             </ul>
         </div>
     </nav>
@@ -152,7 +158,7 @@
 
         <div class="card__body">
             <div class="table-actions">
-                <button id="logExport" class="btn btn--secondary btn--small" type="button">Export CSV</button>
+                <!--<button id="logExport" class="btn btn--secondary btn--small" type="button">Export CSV</button>-->
             </div>
 
             <div class="table-wrap">
