@@ -21,7 +21,9 @@
 /* ---------- User control ---------- */
 .user{ position:relative; }
 .user__btn{
-    display:flex; align-items:center; gap:12px;
+    position: absolute;
+    display:flex; align-items:center; gap:0px;
+    margin: 0;
     background: rgba(255,255,255,.08);
     border: 1px solid rgba(255,255,255,.16);
     color:#fff; padding:10px 14px; border-radius:14px; cursor:pointer;

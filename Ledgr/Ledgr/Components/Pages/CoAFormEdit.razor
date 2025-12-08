@@ -36,7 +36,7 @@
       </button>
 
       <div id="userMenu" class="menu" role="menu" aria-labelledby="userMenuBtn">
-        <button @onclick="() => Nav.LogOut(Username)" class="menu__item" role="menuitem">
+        <button @onclick="() => Nav.LogOut()" class="menu__item" role="menuitem">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M10 17l1.41-1.41L8.83 13H21v-2H8.83l2.58-2.59L10 7l-5 5 5 5zM4 19h6v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6v2H4v14z"/>
           </svg>
@@ -418,43 +418,9 @@
 
   }
   
-  // Nav Buttons - Linked to side bar
-  public void Home()
+  public bool ShowLogout { get; set; } = false;
+  public void LogoutVisibility()
   {
-    NavigationManager.NavigateTo($"/dashboard/{Username}");
-  }
-
-  public void CoAList()
-  {
-    NavigationManager.NavigateTo($"/CoAList/{Username}");
-  }
-    
-  public void CoAFormCall()
-  {
-    NavigationManager.NavigateTo($"/CoAForm/{Username}");
-  }
-  public void CoAEventLog()
-  {
-    NavigationManager.NavigateTo($"/CoAEventLog/{Username}");
-  }
-  public void ManageUser()
-  {
-    NavigationManager.NavigateTo($"/manageUsers/{Username}");
-  }
-  public void PasswordReport()
-  {
-    NavigationManager.NavigateTo($"/pwReport/{Username}");
-  }
-  public void Journal()
-  {
-    NavigationManager.NavigateTo($"/journal/{Username}");
-  }
-  public void LedgerCall()
-  {
-    NavigationManager.NavigateTo($"/ledger/{Username}");
-  }
-  public void LogOut()
-  {
-    NavigationManager.NavigateTo("/");
+    ShowLogout = !ShowLogout;
   }
 }

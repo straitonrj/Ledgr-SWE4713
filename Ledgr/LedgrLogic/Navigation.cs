@@ -95,7 +95,7 @@ public class Navigation
     {
         _nav.NavigateTo($"/help/{Username}");
     }
-    public void LogOut(string Username)
+    public void LogOut()
     {
         _nav.NavigateTo("/");
     }
