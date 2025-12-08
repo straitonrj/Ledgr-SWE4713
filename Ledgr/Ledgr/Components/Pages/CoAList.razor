@@ -179,19 +179,21 @@
         </div>
 
         <div class="input-group" style="align-self:end;">
-          <button type="button" id="btnClearFilters" class="btn btn--secondary">Clear Filters</button>
+          <button @onclick="ClearFilter" type="button" id="btnClearFilters" class="btn btn--secondary">Clear Filters</button>
         </div>
         <div class="input-group" style="align-self:end;">
-          <button type="submit" class="btn btn--primary">Apply Filters</button>
+          <button @onclick="FilterCoA" type="button" class="btn btn--primary">Apply Filters</button>
         </div>
       </form>
     </div>
 
+    
     <div class="card__body">
       <div class="table-actions">
         <a @onclick="CoAEventLog" href="#" class="btn btn--secondary" type="button" title="View all account changes">View Event Log</a>
-        <button id="btnExportCsv" class="btn btn--secondary" type="button">Export CSV</button>
+        <!--<button id="btnExportCsv" class="btn btn--secondary" type="button">Export CSV</button>-->
       </div>
+      
 
         
 
@@ -211,16 +213,16 @@
             <!-- <th>Normal Side</th> -->
             <th>Category</th>
             <th>Subcategory</th>
-            <th>Initial Balance</th>
-            <th>Debit</th>
-            <th>Credit</th>
+            <!-- th>Initial Balance</th -->
+            <!-- th>Debit</th -->
+            <!-- th>Credit</th -->
             <th>Balance</th>
             <th>Created</th>
-            <th>Added By</th>
-            <th>Order</th>
+            <!-- th>Added By</th -->
+            <!-- th>Order</th -->
             <th>Statement</th>
             <!-- <th>Updated</th> -->
-            <th>Status</th>
+            <!--th>Status</th-->
             <th class="text-right">Actions</th>
           </tr>
           </thead>
@@ -240,16 +242,16 @@
                 <td>@Accounts[index + 5]</td>
                 
                 <!-- Initial, Debits, Credits, Balance -->
-                <td style="text-align: right">@Accounts[index + 6]</td>
-                <td style="text-align: right">@Accounts[index + 7]</td>
-                <td style="text-align: right">@Accounts[index + 8]</td>
+                <!-- td style="text-align: right">@Accounts[index + 6]</td -->
+                <!-- td style="text-align: right">@Accounts[index + 7]</td -->
+                <!-- td style="text-align: right">@Accounts[index + 8]</td -->
                 <td style="text-align: right">@Accounts[index + 9]</td>
                 
                 <td>@Accounts[index + 10]</td>
-                <td>@Accounts[index + 11]</td>
-                <td>@Accounts[index + 12]</td>
+                <!-- td>@Accounts[index + 11]</td -->
+                <!-- td>@Accounts[index + 12]</td -->
                 <td>@Accounts[index + 13]</td>
-                <td>@Accounts[index + 14]</td>
+                <!--td>@Accounts[index + 14]</td-->
                 @if (Role == "Admin")
                 {
                   <td><button @onclick="(() => AccountEdit(index))" type="button" class="btn btn-primary">View</button></td>
@@ -333,6 +335,7 @@
 
 
   private List<string> Accounts = new List<string>();
+  private List<string> MasterAccounts = new List<string>();
   private bool showActions { get; set; } = false;
   private string AcctNum { get; set; } = "-1";
 
@@ -346,6 +349,30 @@
   private string AcctMax { get; set; } = string.Empty;
   private string Search { get; set; } = string.Empty;
 
+  public async Task FilterCoA()
+  {
+     Accounts = await Filter.CoAList(Accounts, Category, Subcategory, NormalSide, AcctNumFrom, AcctNumTo, AcctMin, AcctMax, Search);
+     StateHasChanged();
+  }
+
+  public void ClearFilter()
+  {
+    Category  = string.Empty;
+    Subcategory  = string.Empty;
+    NormalSide  = string.Empty;
+    AcctNumFrom  = string.Empty;
+    AcctNumTo = string.Empty;
+    AcctMin  = string.Empty;
+    AcctMax  = string.Empty;
+    Search  = string.Empty;
+    
+    Accounts = new List<string>();
+    foreach (string data in MasterAccounts)
+    {
+      Accounts.Add(data);
+    }
+  }
+
   protected override async Task OnParametersSetAsync()
   {
     Role = (await Admin.GetUserFromUserName(Username)).GetRole();
@@ -357,8 +384,13 @@
       Accounts[i + 7] = Convert.ToDouble(Accounts[i + 7]).ToString("N2");
       Accounts[i + 8] = Convert.ToDouble(Accounts[i + 8]).ToString("N2");
       Accounts[i + 9] = Convert.ToDouble(Accounts[i + 9]).ToString("N2");
-
     }
+
+    foreach (string data in Accounts)
+    {
+      MasterAccounts.Add(data);
+    }
+    
   }
   
   public void showActionsDialog(int index)

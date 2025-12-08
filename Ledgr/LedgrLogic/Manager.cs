@@ -375,6 +375,7 @@ public class Manager : User
             connection.Open();
 
             var command = new SqliteCommand(sql, connection);
+            command.Parameters.AddWithValue("@INPUT", input);
 
             using var reader = command.ExecuteReader();
             if (reader.HasRows)

@@ -158,9 +158,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                            @for (int i = 0; i < Approved.Count; i += 9)
+                            @for (int i = 0; i < EntriesAll.Count; i += 9)
                             {
                                 int index = i;
+
                                 @if (index != 0)
                                 {
                                     @if (EntriesAll[index] == EntriesAll[index - 9])
@@ -446,11 +447,12 @@
         {
             EntriesAll.Add(data);
         }
-
+/*
         foreach (var VARIABLE in EntriesAll)
         {
             Console.WriteLine(VARIABLE);
         }
+        */
         
         StateHasChanged();
     }
