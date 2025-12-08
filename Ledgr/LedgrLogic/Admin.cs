@@ -448,7 +448,7 @@ public class Admin : User
 
         return Successful;
     }
-    public ArrayList UserReport()
+    public static ArrayList UserReport()
     {
         ArrayList UserReport = new ArrayList();
         try
