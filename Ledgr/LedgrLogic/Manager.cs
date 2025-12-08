@@ -194,6 +194,7 @@ public class Manager : User
                         Account.UpdateAccountCredit(accountNum, amount, username);
                     }
                 }
+                
             }
             
             connection.Close();
@@ -798,7 +799,6 @@ public class Manager : User
         return journalEntryID;
     }
     
-    
      public static List<string> ViewAdjustingEntriesByStatus(char status)
     {
         List<string> entries = new List<string>();
@@ -1095,25 +1095,32 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
             double revBalance = 0;
 
+            List<string> usedAccounts = new List<string>();
+
             using var revReader = revCommand.ExecuteReader();
             while (revReader.Read())
             {
                 if (revReader.HasRows)
                 {
-                    List<string> returnedEntries = new List<string>();
-                    char normalSide = revReader.GetChar(2);
-                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
-                    List<string> temp = new List<string>();
-
-                    //creating a list containing only DebitCredit and Amount to get the total
-                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    if (!usedAccounts.Contains(revReader.GetString(0)))
                     {
-                        for (int k = 4; k < 6; k++)
+                        usedAccounts.Add(revReader.GetString(0));
+                        char normalSide = revReader.GetChar(2);
+                        List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, revReader.GetInt32(1));
+                        List<string> temp = new List<string>();
+
+                        //creating a list containing only DebitCredit and Amount to get the total
+                        for (int j = 0; j < relevantEntries.Count; j += 6)
                         {
-                            temp.Add(relevantEntries[k]);
+                            for (int k = j + 4; k < j + 6; k++)
+                            {
+                                temp.Add(relevantEntries[k]);
+                            }
                         }
+
+                        revBalance = GetAccountBalance(temp, normalSide);
+                        Console.WriteLine("Revenue Balance: "+revBalance);
                     }
-                    revBalance = GetAccountBalance(temp, normalSide);
                 }
             }
 
@@ -1129,21 +1136,26 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
             {
                 while (expReader.Read())
                 {
-
-                    char normalSide = expReader.GetChar(2);
-                    List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, expReader.GetInt32(1));
-                    List<string> temp = new List<string>();
-
-                    //creating a list containing only DebitCredit and Amount to get the total
-                    for (int j = 0; j < relevantEntries.Count / 6; j++)
+                    if (!usedAccounts.Contains(expReader.GetString(0)))
                     {
-                        for (int k = 4; k < 6; k++)
-                        {
-                            temp.Add(relevantEntries[k]);
-                        }
-                    }
+                        usedAccounts.Add(expReader.GetString(0));
+                        char normalSide = expReader.GetChar(2);
+                        List<string> relevantEntries = GetLedgerByDateRange(toDate, fromDate, expReader.GetInt32(1));
+                        List<string> temp = new List<string>();
 
-                    expBalance = GetAccountBalance(temp, normalSide);
+                        //creating a list containing only DebitCredit and Amount to get the total
+                        for (int j = 0; j < relevantEntries.Count; j += 6)
+                        {
+                            for (int k = j + 4; k < j + 6; k++)
+                            {
+                                Console.WriteLine(relevantEntries[k]);
+                                temp.Add(relevantEntries[k]);
+                            }
+                        }
+
+                        expBalance += GetAccountBalance(temp, normalSide);
+                        Console.WriteLine("Expense Balance: "+expBalance);
+                    }
                 }
             }
             //check for pre existing retained earnings
@@ -1301,7 +1313,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
         return journalEntryID;
     }
     
-    
      public static List<string> ViewClosingEntriesByStatus(char status)
     {
         List<string> entries = new List<string>();
@@ -1438,7 +1449,6 @@ public static List<string> GetIncomeStatement(string fromDate, string toDate)
 
         return journalEntryID;
     }
-    
     
      public static List<string> ViewReversingEntriesByStatus(char status)
     {
