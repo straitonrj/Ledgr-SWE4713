@@ -27,22 +27,22 @@
         </div>
 
         <div class="user">
-            <button id="userMenuBtn" class="user__btn" aria-haspopup="menu" aria-expanded="false">
+            <button @onclick="LogoutVisibility" id="userMenuBtn" class="user__btn" aria-haspopup="menu" aria-expanded="false">
                 <svg class="icon icon--user" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
                 </svg>
                 <span class="user__name">@Username</span>
-                <svg class="icon icon--caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5H7z"/></svg>
+                <svg class="icon icon--caret" viewBox="0 0 24 24" aria-hidden="false"><path d="M7 10l5 5 5-5H7z"/></svg>
             </button>
-
-            <div id="userMenu" class="menu" role="menu" aria-labelledby="userMenuBtn">
-                <button class="menu__item" role="menuitem" id="logoutBtn">
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M10 17l1.41-1.41L8.83 13H21v-2H8.83l2.58-2.59L10 7l-5 5 5 5zM4 19h6v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6v2H4v14z"/>
-                    </svg>
-                    Log out
-                </button>
-            </div>
+            @if (ShowLogout)
+            {
+            <button @onclick="Nav.LogOut" class="menu__item" role="menuitem" id="logoutBtn">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="false">
+                    <path d="M10 17l1.41-1.41L8.83 13H21v-2H8.83l2.58-2.59L10 7l-5 5 5 5zM4 19h6v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6v2H4v14z"/>
+                </svg>
+                Log out
+            </button>
+            }
         </div>
     </div>
 
@@ -52,8 +52,14 @@
                 <li><a @onclick="(() => Nav.Home(Username))" class="app-nav__link" href="#">Dashboard</a></li>
                 <li><a @onclick="(() => Nav.CoAListCall(Username))" class="app-nav__link" href="#">Chart of Accounts</a></li>
                 <li><a @onclick="(() => Nav.CoAEventLog(Username))" class="app-nav__link" href="#">Event Log</a></li>
-                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
-                <li><a @onclick="(() => Nav.Reports(Username))" class="app-nav__link" href="#l">Reports</a></li>
+                @if (Role != "Admin")
+                {
+                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link is-active" href="#">Journal</a></li>
+                @if (Role != "Accountant")
+                {
+                <li><a @onclick="(() => Nav.Reports(Username))" class="app-nav__link" href="#">Reports</a></li>
+                }
+                }
             </ul>
         </div>
     </nav>
@@ -229,5 +235,9 @@
         
         StateHasChanged();
     }
-
+    public bool ShowLogout { get; set; } = false;
+    public void LogoutVisibility()
+    {
+        ShowLogout = !ShowLogout;
+    }
 }

@@ -1,6 +1,7 @@
 @page "/ApproveJournal/{Username}"
 @using LedgrLogic
 @inject Navigation Nav
+@inject IJSRuntime JS
 
 <!doctype html>
 <html lang="en">
@@ -27,33 +28,39 @@
         </div>
 
         <div class="user">
-            <button id="userMenuBtn" class="user__btn" aria-haspopup="menu" aria-expanded="false">
+            <button @onclick="LogoutVisibility" id="userMenuBtn" class="user__btn" aria-haspopup="menu" aria-expanded="false">
                 <svg class="icon icon--user" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
                 </svg>
-                <span class="user__name">Admin</span>
-                <svg class="icon icon--caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5H7z"/></svg>
+                <span class="user__name">@Username</span>
+                <svg class="icon icon--caret" viewBox="0 0 24 24" aria-hidden="false"><path d="M7 10l5 5 5-5H7z"/></svg>
             </button>
-
-            <div id="userMenu" class="menu" role="menu" aria-labelledby="userMenuBtn">
-                <button class="menu__item" role="menuitem" id="logoutBtn">
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M10 17l1.41-1.41L8.83 13H21v-2H8.83l2.58-2.59L10 7l-5 5 5 5zM4 19h6v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6v2H4v14z"/>
-                    </svg>
-                    Log out
-                </button>
-            </div>
+            @if (ShowLogout)
+            {
+            <button @onclick="Nav.LogOut" class="menu__item" role="menuitem" id="logoutBtn">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="false">
+                    <path d="M10 17l1.41-1.41L8.83 13H21v-2H8.83l2.58-2.59L10 7l-5 5 5 5zM4 19h6v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6v2H4v14z"/>
+                </svg>
+                Log out
+            </button>
+            }
         </div>
     </div>
 
     <nav class="app-nav" aria-label="Primary">
         <div class="app-nav__inner">
             <ul class="app-nav__list">
-                <li><a @onclick="() => Nav.Home(Username)" class="app-nav__link" href="#">Dashboard</a></li>
-                <li><a @onclick="() => Nav.CoAListCall(Username)" class="app-nav__link" href="#">Chart of Accounts</a></li>
-                <li><a @onclick="() => Nav.CoAEventLog(Username)" class="app-nav__link" href="#">Event Log</a></li>
-                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
-                <li><a @onclick="() => Nav.Reports(Username)" class="app-nav__link" href="#">Reports</a></li>
+                <li><a @onclick="(() => Nav.Home(Username))" class="app-nav__link" href="#">Dashboard</a></li>
+                <li><a @onclick="(() => Nav.CoAListCall(Username))" class="app-nav__link" href="#">Chart of Accounts</a></li>
+                <li><a @onclick="(() => Nav.CoAEventLog(Username))" class="app-nav__link" href="#">Event Log</a></li>
+                @if (Role != "Admin")
+                {
+                <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link is-active" href="#">Journal</a></li>
+                @if (Role != "Accountant")
+                {
+                <li><a @onclick="(() => Nav.Reports(Username))" class="app-nav__link" href="#">Reports</a></li>
+                }
+                }
             </ul>
         </div>
     </nav>
@@ -104,18 +111,24 @@
 <!-- ADJUSTING ENTRIES LIST PANEL -->
 <section class="cards">
     <article id="aje-status-card" class="card card--page">
-        <header class="page-head page-head--inline">
-            <h2 class="h2">Journal</h2>
-        </header>
+        <div style="display: flex; justify-content: space-between">
+            <header class="page-head page-head--inline">
+                <h2 class="h2">Journal</h2>
+            </header>
+            <div>
+                <a @onclick="() => Nav.JournalEntry(Username)" class="btn btn--primary" href="#">+ New Journal Entry</a>
+            </div>
+        </div>
+
 
         <div class="tabs tabs-compact" role="tablist" aria-label="Adjusting entry status">
-            <input type="radio" name="ajeTab" id="tabPending" checked />
+            <input type="radio" name="ajeTab" id="tabPending" checked/>
             <label role="tab" for="tabPending" aria-controls="panelPending">Pending</label>
 
-            <input type="radio" name="ajeTab" id="tabApproved" />
+            <input type="radio" name="ajeTab" id="tabApproved"/>
             <label role="tab" for="tabApproved" aria-controls="panelApproved" style="background-color: #98fb98">Approved</label>
 
-            <input type="radio" name="ajeTab" id="tabRejected" />
+            <input type="radio" name="ajeTab" id="tabRejected"/>
             <label role="tab" for="tabRejected" aria-controls="panelRejected" style="background-color: #FFC0CB">Rejected</label>
 
             <!-- Filters -->
@@ -123,15 +136,15 @@
                 <div class="filter-row">
                     <div class="filter-group">
                         <label for="fromDate">From</label>
-                        <input type="date" id="fromDate" name="from" />
+                        <input type="date" id="fromDate" name="from"/>
                     </div>
                     <div class="filter-group">
                         <label for="toDate">To</label>
-                        <input type="date" id="toDate" name="to" />
+                        <input type="date" id="toDate" name="to"/>
                     </div>
                     <div class="filter-group">
                         <label for="search">Search</label>
-                        <input type="search" id="search" name="q" placeholder="Account, amount, or date" />
+                        <input type="search" id="search" name="q" placeholder="Account, amount, or date"/>
                     </div>
                     <div class="filter-group">
                         <button type="submit" class="btn btn--secondary btn--sm">Apply</button>
@@ -157,84 +170,16 @@
                         </tr>
                         </thead>
                         <tbody>
-                            @for (int i = 0; i < EntriesAll.Count; i += 9)
-                            {
-                                int index = i;
+                        @for (int i = 0; i < EntriesAll.Count; i += 9)
+                        {
+                            int index = i;
 
-                                @if (index != 0)
-                                {
-                                    @if (EntriesAll[index] == EntriesAll[index - 9])
-                                    {
-                                        <tr>
-                                            <td></td>
-                                            <td>@EntriesAll[index + 8]</td>
-                                            <td>@EntriesAll[index + 1]</td>
-                                            <td>@EntriesAll[index + 2]</td>
-                                            <td>@EntriesAll[index + 3]</td>
-                                            <td style="text-align: right">@Convert.ToDouble(EntriesAll[index + 4]).ToString("N2")</td>
-                                            @if (EntriesAll[index + 5] == "P")
-                                            {
-                                                <td>
-                                                    <label role="tab" for="tabPending" aria-controls="panelPending">Pending</label>
-                                                </td>
-                                                <td></td>
-                                            }
-                                            @if (EntriesAll[index + 5] == "A")
-                                            {
-                                                <td>
-                                                    <label role="tab" for="tabApproved" aria-controls="panelApproved" style="background-color: #98fb98">Approved</label>
-                                                </td>
-                                                <td></td>
-                                            }
-                                            @if (EntriesAll[index + 5] == "R")
-                                            {
-                                                <td>
-                                                    <label role="tab" for="tabRejected" aria-controls="panelRejected" style="background-color: #FFC0CB">Rejected</label>
-                                                </td>
-                                                <td></td>
-                                            }
-                                        </tr>
-                                    }
-                                    @if (EntriesAll[index] != EntriesAll[index - 9])
-                                    {
-                                        <tr>
-                                            <td><a @onclick="() => Nav.ViewJournalEntry(Username, EntriesAll[index])" href="#">@EntriesAll[index]</a></td>
-                                            <td>@EntriesAll[index + 8]</td>
-                                            <td>@EntriesAll[index + 1]</td>
-                                            <td>@EntriesAll[index + 2]</td>
-                                            <td>@EntriesAll[index + 3]</td>
-                                            <td style="text-align: right">@Convert.ToDouble(EntriesAll[index + 4]).ToString("N2")</td>
-                                            @if (EntriesAll[index + 5] == "P")
-                                            {
-                                                <td>
-                                                    <label role="tab" for="tabPending" aria-controls="panelPending">Pending</label>
-                                                </td>
-                                                <td>
-                                                    <button @onclick="() => ApproveEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">✅</button>
-                                                    <button @onclick="() => RejectEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">❌</button>
-                                                </td>
-                                            }
-                                            @if (EntriesAll[index + 5] == "A")
-                                            {
-                                                <td>
-                                                    <label role="tab" for="tabApproved" aria-controls="panelApproved" style="background-color: #98fb98">Approved</label>
-                                                </td>
-                                                <td></td>
-                                            }
-                                            @if (EntriesAll[index + 5] == "R")
-                                            {
-                                                <td>
-                                                    <label role="tab" for="tabRejected" aria-controls="panelRejected" style="background-color: #FFC0CB">Rejected</label>
-                                                </td>
-                                                <td></td>
-                                            }
-                                        </tr>
-                                    }
-                                }
-                                @if (index == 0)
+                            @if (index != 0)
+                            {
+                                @if (EntriesAll[index] == EntriesAll[index - 9])
                                 {
                                     <tr>
-                                        <td><a @onclick="() => Nav.ViewJournalEntry(Username, EntriesAll[index])" href="#">@EntriesAll[index]</a></td>
+                                        <td></td>
                                         <td>@EntriesAll[index + 8]</td>
                                         <td>@EntriesAll[index + 1]</td>
                                         <td>@EntriesAll[index + 2]</td>
@@ -245,10 +190,7 @@
                                             <td>
                                                 <label role="tab" for="tabPending" aria-controls="panelPending">Pending</label>
                                             </td>
-                                            <td>
-                                                <button @onclick="() => ApproveEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">✅</button>
-                                                <button @onclick="() => RejectEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">❌</button>
-                                            </td>
+                                            <td></td>
                                         }
                                         @if (EntriesAll[index + 5] == "A")
                                         {
@@ -267,7 +209,96 @@
                                     </tr>
                                 }
 
+                                @if (EntriesAll[index] != EntriesAll[index - 9])
+                                {
+                                    <tr>
+                                        <td><a @onclick="() => Nav.ViewJournalEntry(Username, EntriesAll[index])" href="#">@EntriesAll[index]</a></td>
+                                        <td>@EntriesAll[index + 8]</td>
+                                        <td>@EntriesAll[index + 1]</td>
+                                        <td>@EntriesAll[index + 2]</td>
+                                        <td>@EntriesAll[index + 3]</td>
+                                        <td style="text-align: right">@Convert.ToDouble(EntriesAll[index + 4]).ToString("N2")</td>
+                                        @if (EntriesAll[index + 5] == "P")
+                                        {
+                                            <td>
+                                                <label role="tab" for="tabPending" aria-controls="panelPending">Pending</label>
+                                            </td>
+                                            @if (Role != "Accountant")
+                                            {
+                                                <td>
+                                                    <button @onclick="() => ApproveEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">✅</button>
+                                                    <button @onclick="() => RejectEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">❌</button>
+                                                </td>
+                                            }
+
+                                            @if (Role == "Accountant")
+                                            {
+                                                <td></td>
+                                            }
+                                        }
+                                        @if (EntriesAll[index + 5] == "A")
+                                        {
+                                            <td>
+                                                <label role="tab" for="tabApproved" aria-controls="panelApproved" style="background-color: #98fb98">Approved</label>
+                                            </td>
+                                            <td></td>
+                                        }
+                                        @if (EntriesAll[index + 5] == "R")
+                                        {
+                                            <td>
+                                                <label role="tab" for="tabRejected" aria-controls="panelRejected" style="background-color: #FFC0CB">Rejected</label>
+                                            </td>
+                                            <td></td>
+                                        }
+                                    </tr>
+                                }
                             }
+
+                            @if (index == 0)
+                            {
+                                <tr>
+                                    <td><a @onclick="() => Nav.ViewJournalEntry(Username, EntriesAll[index])" href="#">@EntriesAll[index]</a></td>
+                                    <td>@EntriesAll[index + 8]</td>
+                                    <td>@EntriesAll[index + 1]</td>
+                                    <td>@EntriesAll[index + 2]</td>
+                                    <td>@EntriesAll[index + 3]</td>
+                                    <td style="text-align: right">@Convert.ToDouble(EntriesAll[index + 4]).ToString("N2")</td>
+                                    @if (EntriesAll[index + 5] == "P")
+                                    {
+                                        <td>
+                                            <label role="tab" for="tabPending" aria-controls="panelPending">Pending</label>
+                                        </td>
+                                        @if (Role != "Accountant")
+                                        {
+                                            <td>
+                                                <button @onclick="() => ApproveEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">✅</button>
+                                                <button @onclick="() => RejectEntry(EntriesAll[index])" style="font-size: 30px; margin: 0px" class="btn">❌</button>
+                                            </td>
+                                        }
+
+                                        @if (Role == "Accountant")
+                                        {
+                                            <td></td>
+                                        }
+                                    }
+                                    @if (EntriesAll[index + 5] == "A")
+                                    {
+                                        <td>
+                                            <label role="tab" for="tabApproved" aria-controls="panelApproved" style="background-color: #98fb98">Approved</label>
+                                        </td>
+                                        <td></td>
+                                    }
+                                    @if (EntriesAll[index + 5] == "R")
+                                    {
+                                        <td>
+                                            <label role="tab" for="tabRejected" aria-controls="panelRejected" style="background-color: #FFC0CB">Rejected</label>
+                                        </td>
+                                        <td></td>
+                                    }
+                                </tr>
+                            }
+
+                        }
                         </tbody>
                     </table>
                 </div>
@@ -377,6 +408,11 @@
         ActiveEntry = entryID;
         showReject = true;
     }
+    
+    private async Task Refresh()
+    {
+        await JS.InvokeVoidAsync("refreshPage");
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -446,14 +482,16 @@
         {
             EntriesAll.Add(data);
         }
-/*
-        foreach (var VARIABLE in EntriesAll)
+
+        foreach (string data in EntriesAll)
         {
-            Console.WriteLine(VARIABLE);
+            Console.WriteLine(data);
         }
-        */
-        
         StateHasChanged();
     }
-
+    public bool ShowLogout { get; set; } = false;
+    public void LogoutVisibility()
+    {
+        ShowLogout = !ShowLogout;
+    }
 }

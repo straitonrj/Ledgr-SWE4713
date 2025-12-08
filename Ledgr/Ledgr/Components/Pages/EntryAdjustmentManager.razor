@@ -32,7 +32,7 @@
         <svg class="icon icon--user" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/>
         </svg>
-        <span class="user__name">Manager</span>
+        <span class="user__name">@Username</span>
         <svg class="icon icon--caret" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M7 10l5 5 5-5H7z"/>
         </svg>
@@ -55,8 +55,14 @@
         <li><a @onclick="(() => Nav.Home(Username))" class="app-nav__link" href="#">Dashboard</a></li>
         <li><a @onclick="(() => Nav.CoAListCall(Username))" class="app-nav__link" href="#">Chart of Accounts</a></li>
         <li><a @onclick="(() => Nav.CoAEventLog(Username))" class="app-nav__link" href="#">Event Log</a></li>
-        <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link" href="#">Journal</a></li>
+        @if (Role != "Admin")
+        {
+        <li><a @onclick="(() => Nav.AdjustJournal(Username))" class="app-nav__link is-active" href="#">Journal</a></li>
+        @if (Role != "Accountant")
+        {
         <li><a @onclick="(() => Nav.Reports(Username))" class="app-nav__link" href="#">Reports</a></li>
+        }
+        }
       </ul>
     </div>
   </nav>
